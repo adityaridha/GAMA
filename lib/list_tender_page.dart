@@ -64,39 +64,21 @@ class _ListTenderPageState extends State<ListTenderPage> {
       'Vatican City'
     ];
 
-    final banner =
-
-    CustomScrollView(
-      slivers: <Widget>[
-        SliverAppBar(
-          title: Text('SliverAppBar'),
-          backgroundColor: Colors.green,
-          expandedHeight: 200.0,
-          flexibleSpace: FlexibleSpaceBar(
-            background: Image.asset('images/auction.jpg', fit: BoxFit.cover),
-          ),
-        )
-      ],
+    final banner = Container(
+      color: Colors.white70,
+      width: 400,
+      height: 200,
+      padding: EdgeInsets.all(2.0),
+      child: Image(
+        image: AssetImage("images/auction.jpg"),
+        fit: BoxFit.fill,
+      ),
     );
-
-
-
-//    Container(
-//      color: Colors.white70,
-//      width: 400,
-//      height: 200,
-//      padding: EdgeInsets.all(2.0),
-//      child: Image(
-//        image: AssetImage("images/auction.jpg"),
-//        fit: BoxFit.fill,
-//      ),
-//    );
 
     final arrayList = ListView.separated(
       padding: EdgeInsets.all(10.0),
       itemCount: europeanCountries.length,
       itemBuilder: (context, index) {
-
         if (index == 0) {
           return banner;
         } else if (index == 1) {
