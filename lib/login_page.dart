@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:telkom_bidding_app/list_tender_model.dart';
 import 'package:telkom_bidding_app/list_tender_page.dart';
 import 'package:telkom_bidding_app/register_page.dart';
 
@@ -14,6 +15,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
+
+  User user = null;
 
   final redTel = Color(0xffc90623);
 
