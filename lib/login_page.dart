@@ -61,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
     Widget loginLogic() {
       if (emailController.text == "admin" &&
           passwordController.text == "admin") {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
           return ListTenderPage();
         }));
       } else {
