@@ -1,11 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:telkom_bidding_app/list_tender_model.dart';
 
 class ListTenderPage extends StatefulWidget {
+  ListTenderPage({Key key, this.title}) : super(key: key);
+
+  final String title;
+
   @override
   _ListTenderPageState createState() => _ListTenderPageState();
 }
 
 class _ListTenderPageState extends State<ListTenderPage> {
+
+  UserList userList = null;
+  User user = null;
+
+  @override
+  void initState() {
+    super.initState();
+
+    UserList.connectToAPI("2").then((value) {
+      setState(() {
+        userList = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final europeanCountries = [
@@ -24,42 +44,6 @@ class _ListTenderPageState extends State<ListTenderPage> {
       'Denmark',
       'Estonia',
       'Finland',
-      'France',
-      'Georgia',
-      'Germany',
-      'Greece',
-      'Hungary',
-      'Iceland',
-      'Ireland',
-      'Italy',
-      'Kazakhstan',
-      'Kosovo',
-      'Latvia',
-      'Liechtenstein',
-      'Lithuania',
-      'Luxembourg',
-      'Macedonia',
-      'Malta',
-      'Moldova',
-      'Monaco',
-      'Montenegro',
-      'Netherlands',
-      'Norway',
-      'Poland',
-      'Portugal',
-      'Romania',
-      'Russia',
-      'San Marino',
-      'Serbia',
-      'Slovakia',
-      'Slovenia',
-      'Spain',
-      'Sweden',
-      'Switzerland',
-      'Turkey',
-      'Ukraine',
-      'United Kingdom',
-      'Vatican City'
     ];
 
     final banner = Container(
@@ -73,70 +57,6 @@ class _ListTenderPageState extends State<ListTenderPage> {
       ),
     );
 
-    final arrayList = ListView.separated(
-      padding: EdgeInsets.all(10.0),
-      itemCount: europeanCountries.length,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return banner;
-        } else if (index == 1) {
-          return Container(
-            child: Padding(
-                padding: EdgeInsets.all(5.5),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "List Bid Tender",
-                    style: TextStyle(fontSize: 20.0),
-                  ),
-                )),
-          );
-        }
-
-        return Container(
-            color: Colors.red,
-            child: Container(
-              margin: EdgeInsets.only(left: 4.0),
-              color: Colors.white,
-              child: ListTile(
-                title: Text(
-                  europeanCountries[index],
-                  style: TextStyle(fontSize: 15.0),
-                ),
-                subtitle: Column(children: <Widget>[
-                  SizedBox(height: 5.0),
-                  Row(
-                    children: <Widget>[
-                      Icon(
-                        Icons.pin_drop,
-                        size: 15.0,
-                        color: Colors.blue,
-                      ),
-                      SizedBox(width: 7.0),
-                      Text("Instansi"),
-                      SizedBox(width: 170.0),
-                    ],
-                  ),
-                  SizedBox(height: 10.0),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Rp 6.9 Jt",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  )
-                ]),
-                trailing: Icon(Icons.arrow_right),
-                onTap: () {
-                  print("Hai");
-                },
-              ),
-            ));
-      },
-      separatorBuilder: (context, index) {
-        return Divider();
-      },
-    );
 
     final sliverList = CustomScrollView(
       slivers: <Widget>[
@@ -184,7 +104,7 @@ class _ListTenderPageState extends State<ListTenderPage> {
                               color: Colors.blue,
                             ),
                             SizedBox(width: 7.0),
-                            Text("Instansi"),
+                            Text(userList.users[index].first_name),
                             SizedBox(width: 170.0),
                           ],
                         ),
@@ -200,6 +120,8 @@ class _ListTenderPageState extends State<ListTenderPage> {
                       trailing: Icon(Icons.arrow_right),
                       onTap: () {
                         print("Hai");
+                        user = userList.users[index];
+                        print(user);
                       },
                     ),
                   )),

@@ -16,9 +16,19 @@ class _LoginPageState extends State<LoginPage> {
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
 
-  User user = null;
-
   final redTel = Color(0xffc90623);
+
+  UserList user = null;
+
+  @override
+  void initState() {
+    super.initState();
+    UserList.connectToAPI("2").then((value) {
+      setState(() {
+        user = value;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,13 +68,14 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     final alertLogin = AlertDialog(
-        title: Text("Oops ..."),
+        title: Text("Oops"),
         content: Text('Username atau Password yang anda masukan salah'));
 
     Widget loginLogic() {
       if (emailController.text == "admin" &&
           passwordController.text == "admin") {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) {
           return ListTenderPage();
         }));
       } else {
@@ -110,17 +121,24 @@ class _LoginPageState extends State<LoginPage> {
     final title = Text.rich(
       TextSpan(
         children: <TextSpan>[
-          TextSpan(text: 'GA', style: TextStyle(fontFamily: 'Cocogoose', fontSize: 60)),
-          TextSpan(text: 'M', style: TextStyle(color: redTel, fontFamily: 'Cocogoose', fontSize: 60)),
-          TextSpan(text: 'A', style: TextStyle(fontFamily: 'Cocogoose', fontSize: 60)),
+          TextSpan(
+              text: 'GA',
+              style: TextStyle(fontFamily: 'Cocogoose', fontSize: 60)),
+          TextSpan(
+              text: 'M',
+              style: TextStyle(
+                  color: redTel, fontFamily: 'Cocogoose', fontSize: 60)),
+          TextSpan(
+              text: 'A',
+              style: TextStyle(fontFamily: 'Cocogoose', fontSize: 60)),
         ],
       ),
     );
 
     final subtitle = Text(
       "Goverment Auction Monitoring Apps",
-      style:
-          TextStyle(fontSize: 15.0, color: redTel, fontWeight: FontWeight.normal),
+      style: TextStyle(
+          fontSize: 15.0, color: redTel, fontWeight: FontWeight.normal),
     );
 
     return Scaffold(
