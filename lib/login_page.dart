@@ -13,6 +13,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
+  final _NIKformKey = GlobalKey<FormState>();
+  final _passwodFormKey = GlobalKey<FormState>();
+
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
 
@@ -32,58 +36,89 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final emailField = TextField(
-      textAlign: TextAlign.center,
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(35.0, 15.0, 20.0, 15.0),
-          prefixIcon: Padding(
-              padding: EdgeInsets.only(left: 20.0),
-              child: Icon(
-                Icons.person,
-                size: 20.0,
-              )),
-          hintText: "Type Your NIK",
-          hintStyle: TextStyle(fontSize: 13),
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(30.0))),
-      controller: emailController,
-    );
+    final emailField = Form(
+        key: _NIKformKey,
+        child: TextFormField(
+          onEditingComplete: () {
+            _NIKformKey.currentState.validate();
+          },
+          onTap: () {
+            _NIKformKey.currentState.validate();
+          },
+          onChanged: (context) {
+            _NIKformKey.currentState.validate();
+          },
+          textAlign: TextAlign.center,
+          decoration: InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(35.0, 15.0, 20.0, 15.0),
+              prefixIcon: Padding(
+                  padding: EdgeInsets.only(left: 20.0),
+                  child: Icon(
+                    Icons.person,
+                    size: 20.0,
+                  )),
+              hintText: "Type Your NIK",
+              hintStyle: TextStyle(fontSize: 13),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0))),
+          controller: emailController,
+          validator: (value) {
+            if (value.isEmpty) {
+              return null;
+            }
+            return null;
+          },
+        ));
 
-    final passwordField = TextField(
-      obscureText: true,
-      textAlign: TextAlign.center,
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(25.0, 15.0, 20.0, 15.0),
-          prefixIcon: Padding(
-              padding: EdgeInsets.only(left: 20.0),
-              child: Icon(
-                Icons.lock,
-                size: 20.0,
-              )),
-          hintText: "Type Your Password",
-          hintStyle: TextStyle(fontSize: 13),
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(30.0))),
-      controller: passwordController,
-    );
+    final passwordField = Form(
+        key: _passwodFormKey,
+        child: TextFormField(
+          onChanged: (context){
+            _passwodFormKey.currentState.validate();
+          },
+          obscureText: true,
+          textAlign: TextAlign.center,
+          decoration: InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(25.0, 15.0, 20.0, 15.0),
+              prefixIcon: Padding(
+                  padding: EdgeInsets.only(left: 20.0),
+                  child: Icon(
+                    Icons.lock,
+                    size: 20.0,
+                  )),
+              hintText: "Type Your Password",
+              hintStyle: TextStyle(fontSize: 13),
+              errorStyle: TextStyle(),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0))),
+          controller: passwordController,
+          validator: (value) {
+            if (value.isEmpty) {
+              return null;
+            }
+            return null;
+          },
+        ));
 
     final alertLogin = AlertDialog(
         title: Text("Oops"),
         content: Text('Username atau Password yang anda masukan salah'));
 
     Widget loginLogic() {
-      if (emailController.text == "admin" &&
-          passwordController.text == "admin") {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) {
-          return ListTenderPage();
-        }));
-      } else {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return alertLogin;
-            });
+      if (_passwodFormKey.currentState.validate()) {
+        if (emailController.text == "admin" &&
+            passwordController.text == "admin") {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) {
+            return ListTenderPage();
+          }));
+        } else {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return alertLogin;
+              });
+        }
       }
     }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:telkom_bidding_app/list_tender_model.dart';
+import 'package:telkom_bidding_app/tender_detail_page.dart';
 
 class ListTenderPage extends StatefulWidget {
   ListTenderPage({Key key, this.title}) : super(key: key);
@@ -62,27 +63,29 @@ class _ListTenderPageState extends State<ListTenderPage> {
     Widget tenderCard(int index) {}
 
     final sliverListItem = SliverFixedExtentList(
-      itemExtent: 100.0,
+      itemExtent: 125.0,
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
         if (userList == null) {
           return Text("Loading..");
         } else {
           if (index < userList.users.length) {
             return Container(
-              color: Colors.white70,
+              color: Color(0xFFf6f6f6),
               padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
               child: Container(
                   color: Colors.red,
                   child: Container(
-                    margin: EdgeInsets.only(left: 4.0),
+                    margin: EdgeInsets.fromLTRB(4.0, 0.0, 0, 0),
                     color: Colors.white,
                     child: ListTile(
+                      contentPadding : EdgeInsets.fromLTRB(15.0, 5, 5, 5),
                       title: Text(
-                        "Tender Tittle " + userList.users[index].title,
+                        "Tender Tittle Bangka Belitung " +
+                            userList.users[index].title,
                         style: TextStyle(fontSize: 15.0),
                       ),
                       subtitle: Column(children: <Widget>[
-                        SizedBox(height: 5.0),
+                        SizedBox(height: 15.0),
                         Row(
                           children: <Widget>[
                             Icon(
@@ -98,16 +101,17 @@ class _ListTenderPageState extends State<ListTenderPage> {
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            "Rp " + userList.users[index].value,
+                            "Rp " + userList.users[index].value + " Juta",
                             style: TextStyle(color: Colors.black),
                           ),
                         )
                       ]),
                       trailing: Icon(Icons.arrow_right),
                       onTap: () {
-                        print("Hai");
-                        user = userList.users[index];
-                        print(user);
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return TenderDetailPage();
+                        }));
                       },
                     ),
                   )),
@@ -119,28 +123,31 @@ class _ListTenderPageState extends State<ListTenderPage> {
       }),
     );
 
-    final sliverList = CustomScrollView(
-      slivers: <Widget>[
-        SliverAppBar(
-          floating: true,
-          pinned: true,
-          elevation: 40.0,
-          expandedHeight: 250.0,
-          backgroundColor: redTel,
-          flexibleSpace: FlexibleSpaceBar(
-            background: Image.asset(
-              'images/auction.jpg',
-              fit: BoxFit.cover,
+    final sliverList = Container(
+      color: Color(0xFFf6f6f6),
+      child: CustomScrollView(
+        slivers: <Widget>[
+          SliverAppBar(
+            floating: true,
+            pinned: true,
+            elevation: 40.0,
+            expandedHeight: 250.0,
+            backgroundColor: redTel,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Image.asset(
+                'images/auction.jpg',
+                fit: BoxFit.cover,
+              ),
+              title: Text('List Bid Tender'),
+              centerTitle: true,
             ),
-            title: Text('List Bid Tender'),
-            centerTitle: true,
           ),
-        ),
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-        ),
-        sliverListItem
-      ],
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(0, 1, 0, 0),
+          ),
+          sliverListItem
+        ],
+      ),
     );
 
     return Scaffold(
