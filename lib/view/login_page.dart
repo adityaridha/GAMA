@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:telkom_bidding_app/list_tender_model.dart';
-import 'package:telkom_bidding_app/list_tender_page.dart';
-import 'package:telkom_bidding_app/register_page.dart';
+import 'package:telkom_bidding_app/model/list_tender_model.dart';
+import 'package:telkom_bidding_app/view/list_tender_page.dart';
+import 'package:telkom_bidding_app/view/register_page.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title}) : super(key: key);
@@ -16,7 +16,6 @@ class _LoginPageState extends State<LoginPage> {
 
   final _NIKformKey = GlobalKey<FormState>();
   final _passwodFormKey = GlobalKey<FormState>();
-
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
 
@@ -108,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
       if (_passwodFormKey.currentState.validate()) {
         if (emailController.text == "admin" &&
             passwordController.text == "admin") {
-          Navigator.pushReplacement(context,
+          Navigator.push(context,
               MaterialPageRoute(builder: (context) {
             return ListTenderPage();
           }));

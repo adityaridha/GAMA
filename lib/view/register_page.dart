@@ -18,7 +18,6 @@ class _RegisterPageState extends State<RegisterPage> {
     final emailField = Column(
       children: <Widget>[
         TextField(
-          obscureText: true,
           decoration: InputDecoration(
               contentPadding: EdgeInsets.fromLTRB(5.0, 15.0, 5.0, 15.0),
               labelText: "Email",
@@ -81,6 +80,33 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
 
+    final title = Center(
+      child: Container(
+        child: Text.rich(
+          TextSpan(
+            children: <TextSpan>[
+              TextSpan(
+                  text: 'GA',
+                  style: TextStyle(fontFamily: 'Cocogoose', fontSize: 40)),
+              TextSpan(
+                  text: 'M',
+                  style: TextStyle(
+                      color: redTel, fontFamily: 'Cocogoose', fontSize: 40)),
+              TextSpan(
+                  text: 'A',
+                  style: TextStyle(fontFamily: 'Cocogoose', fontSize: 40)),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final subtitle = Text(
+      "Goverment Auction Monitoring Apps",
+      style: TextStyle(
+          fontSize: 10.0, color: redTel, fontWeight: FontWeight.normal),
+    );
+
     return Scaffold(
       resizeToAvoidBottomPadding: true,
       appBar: AppBar(
@@ -90,9 +116,12 @@ class _RegisterPageState extends State<RegisterPage> {
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(35.0),
+            padding: const EdgeInsets.fromLTRB(35.0, 0, 35, 10),
             child: Column(
               children: <Widget>[
+                title,
+                subtitle,
+                SizedBox(height: 20.0),
                 NIKField,
                 SizedBox(height: 15.0),
                 emailField,
