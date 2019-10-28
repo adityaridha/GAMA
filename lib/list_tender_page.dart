@@ -11,15 +11,17 @@ class ListTenderPage extends StatefulWidget {
 }
 
 class _ListTenderPageState extends State<ListTenderPage> {
-
   UserList userList = null;
   User user = null;
+
+  final redTel = Color(0xffc90623);
 
   @override
   void initState() {
     super.initState();
 
     UserList.connectToAPI("2").then((value) {
+      print(value.users);
       setState(() {
         userList = value;
       });
@@ -57,30 +59,15 @@ class _ListTenderPageState extends State<ListTenderPage> {
       ),
     );
 
+    Widget tenderCard(int index) {}
 
-    final sliverList = CustomScrollView(
-      slivers: <Widget>[
-        SliverAppBar(
-          floating: true,
-          pinned: true,
-          elevation: 40.0,
-          expandedHeight: 250.0,
-          flexibleSpace: FlexibleSpaceBar(
-            background: Image.asset(
-              'images/auction.jpg',
-              fit: BoxFit.cover,
-            ),
-            title: Text('List Bid Tender'),
-            centerTitle: true,
-          ),
-        ),
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-        ),
-        SliverFixedExtentList(
-          itemExtent: 100.0,
-          delegate:
-              SliverChildBuilderDelegate((BuildContext context, int index) {
+    final sliverListItem = SliverFixedExtentList(
+      itemExtent: 100.0,
+      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+        if (userList == null) {
+          return Text("Loading..");
+        } else {
+          if (index < userList.users.length) {
             return Container(
               color: Colors.white70,
               padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -91,7 +78,7 @@ class _ListTenderPageState extends State<ListTenderPage> {
                     color: Colors.white,
                     child: ListTile(
                       title: Text(
-                        europeanCountries[index],
+                        "Tender Tittle " + userList.users[index].title,
                         style: TextStyle(fontSize: 15.0),
                       ),
                       subtitle: Column(children: <Widget>[
@@ -104,15 +91,14 @@ class _ListTenderPageState extends State<ListTenderPage> {
                               color: Colors.blue,
                             ),
                             SizedBox(width: 7.0),
-                            Text(userList.users[index].first_name),
-                            SizedBox(width: 170.0),
+                            Text(userList.users[index].institution),
                           ],
                         ),
                         SizedBox(height: 10.0),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            "Rp 6.9 Jt",
+                            "Rp " + userList.users[index].value,
                             style: TextStyle(color: Colors.black),
                           ),
                         )
@@ -126,8 +112,34 @@ class _ListTenderPageState extends State<ListTenderPage> {
                     ),
                   )),
             );
-          }),
-        )
+          } else {
+            return null;
+          }
+        }
+      }),
+    );
+
+    final sliverList = CustomScrollView(
+      slivers: <Widget>[
+        SliverAppBar(
+          floating: true,
+          pinned: true,
+          elevation: 40.0,
+          expandedHeight: 250.0,
+          backgroundColor: redTel,
+          flexibleSpace: FlexibleSpaceBar(
+            background: Image.asset(
+              'images/auction.jpg',
+              fit: BoxFit.cover,
+            ),
+            title: Text('List Bid Tender'),
+            centerTitle: true,
+          ),
+        ),
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+        ),
+        sliverListItem
       ],
     );
 

@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Telkom',
-      home: ListTenderPage(title: 'Telkom Projects Bidding'),
+      home: LoginPage(title: 'Telkom Projects Bidding'),
     );
   }
 }
