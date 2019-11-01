@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:telkom_bidding_app/controller/api_call.dart';
 import 'package:telkom_bidding_app/model/list_tender_model.dart';
 import 'package:telkom_bidding_app/view/list_tender_page.dart';
 import 'package:telkom_bidding_app/view/register_page.dart';
+//import 'package:fancy_dialog/fancy_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title}) : super(key: key);
@@ -13,7 +15,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   final _NIKformKey = GlobalKey<FormState>();
   final _passwodFormKey = GlobalKey<FormState>();
   var emailController = TextEditingController();
@@ -26,15 +27,12 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    UserList.connectToAPI("2").then((value) {
-      setState(() {
-        user = value;
-      });
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    var status;
+
     final emailField = Form(
         key: _NIKformKey,
         child: TextFormField(
@@ -72,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
     final passwordField = Form(
         key: _passwodFormKey,
         child: TextFormField(
-          onChanged: (context){
+          onChanged: (context) {
             _passwodFormKey.currentState.validate();
           },
           obscureText: true,
@@ -100,26 +98,90 @@ class _LoginPageState extends State<LoginPage> {
         ));
 
     final alertLogin = AlertDialog(
-        title: Text("Oops"),
-        content: Text('Username atau Password yang anda masukan salah'));
+      title: Center(child: Text("Oops")),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            'Username atau Password yang anda masukan salah',
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 10.0),
+          Center(
+            child: FlatButton(
+              shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
+              color: redTel,
+              child: Center(child: Text("OK", style: TextStyle(color: Colors.white),)),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        ],
+      ),
+      shape:
+          RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
+    );
+
+//    final newAlert = showDialog(
+//        context: context,
+//        builder: (BuildContext context) => FancyDialog(
+//          title: "Fancy Gif Dialog",
+//          descreption: "This is descreption for fancy gif,you can load any image or gif to be displayed :), and you can choose between two themes Fancy and Flat",
+//        )
+//    );
+
+    final loadingLogin = AlertDialog(
+      content: Text('Loading...'),
+      backgroundColor: Colors.white70,
+    );
+
+    void failedLogin(BuildContext context) {
+      print("Failed Login");
+      Navigator.pop(context);
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return alertLogin;
+          });
+    }
 
     Widget loginLogic() {
-      if (_passwodFormKey.currentState.validate()) {
-        if (emailController.text == "admin" &&
-            passwordController.text == "admin") {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) {
+      print("Initial state login : ${status}");
+
+      if (status == null) {
+        print("Inside loading : ${status}");
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return loadingLogin;
+            });
+      }
+      ;
+
+//      if (_passwodFormKey.currentState.validate()) {
+      APICall.login(emailController.text, passwordController.text)
+          .then((value) {
+        setState(() {
+          status = value.statusCode;
+        });
+
+        if (status == 200) {
+          print("Success Login");
+          Navigator.pop(context);
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
             return ListTenderPage();
           }));
         } else {
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return alertLogin;
-              });
+          failedLogin(context);
         }
-      }
+      });
+//      }else{
+//        print("Usernamee and password Can't be empty");
+//      }
     }
+
+    ;
 
     final loginButton = Material(
       elevation: 5.0,
@@ -128,12 +190,12 @@ class _LoginPageState extends State<LoginPage> {
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        child: Text("Login",
+        child: Text("LOGIN",
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 20.0)),
+                fontSize: 17.0)),
         onPressed: () {
           loginLogic();
         },

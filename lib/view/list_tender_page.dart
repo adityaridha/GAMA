@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:telkom_bidding_app/model/list_tender_model.dart';
+import 'package:telkom_bidding_app/view/search_page.dart';
+import 'package:telkom_bidding_app/view/settings_page.dart';
 import 'package:telkom_bidding_app/view/tender_detail_page.dart';
 
 class ListTenderPage extends StatefulWidget {
@@ -21,10 +23,10 @@ class _ListTenderPageState extends State<ListTenderPage> {
   void initState() {
     super.initState();
 
-    UserList.connectToAPI("2").then((value) {
-      print(value.users);
+    UserList.connectToAPI().then((value) {
       setState(() {
         userList = value;
+        print(userList);
       });
     });
   }
@@ -37,7 +39,7 @@ class _ListTenderPageState extends State<ListTenderPage> {
     ];
 
     final sliverListItem = SliverFixedExtentList(
-      itemExtent: 125.0,
+      itemExtent: 135.0,
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
         if (userList == null) {
           return Container(
@@ -75,7 +77,10 @@ class _ListTenderPageState extends State<ListTenderPage> {
                             style: TextStyle(backgroundColor: Colors.red)),
                       )
                     ]),
-                    trailing: Icon(Icons.arrow_right),
+                    trailing: Icon(
+                      Icons.arrow_right,
+                      color: Colors.blue,
+                    ),
                     onTap: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
@@ -98,37 +103,46 @@ class _ListTenderPageState extends State<ListTenderPage> {
                     child: ListTile(
                       contentPadding: EdgeInsets.fromLTRB(15.0, 5, 5, 5),
                       title: Text(
-                        "Tender Tittle Bangka Belitung " +
-                            userList.users[index].title,
+                        userList.users[index].title,
                         style: TextStyle(fontSize: 15.0),
+                        maxLines: 2,
                       ),
-                      subtitle: Column(children: <Widget>[
-                        SizedBox(height: 15.0),
-                        Row(
+                      subtitle: Column(
                           children: <Widget>[
-                            Icon(
-                              Icons.pin_drop,
-                              size: 15.0,
-                              color: Colors.blue,
+                            SizedBox(height: 15.0),
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.pin_drop,
+                                  size: 15.0,
+                                  color: Colors.blue,
+                                ),
+                                SizedBox(width: 7.0),
+                                Flexible(
+                                    child: Text(
+                                  userList.users[index].institution,
+                                  maxLines: 2,
+                                )),
+                              ],
                             ),
-                            SizedBox(width: 7.0),
-                            Text(userList.users[index].institution),
-                          ],
-                        ),
-                        SizedBox(height: 7.0),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "Rp " + userList.users[index].value + " Juta",
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        )
-                      ]),
-                      trailing: Icon(Icons.arrow_right),
+                            SizedBox(height: 7.0),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                "Rp " + userList.users[index].value,
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            )
+                          ]),
+                      trailing: Icon(
+                        Icons.arrow_right,
+                        color: Colors.blue,
+                      ),
                       onTap: () {
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
-                          return TenderDetailPage();
+                              print(userList.users[index].id);
+                          return TenderDetailPage(url: userList.users[index].url,);
                         }));
                       },
                     ),
@@ -148,9 +162,29 @@ class _ListTenderPageState extends State<ListTenderPage> {
           SliverAppBar(
             floating: true,
             pinned: true,
-            elevation: 60.0,
+            elevation: 50.0,
             expandedHeight: 250.0,
             backgroundColor: redTel,
+            actions: <Widget>[
+              InkWell(
+                onTap: () {
+                  print("go to settings");
+
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return SettingsPage();
+                  }));
+                },
+                child: Center(
+                  child: Container(
+                    child: Icon(
+                      Icons.settings,
+                      color: Colors.white,
+                    ),
+                    padding: EdgeInsets.only(right: 20),
+                  ),
+                ),
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Image.asset(
                 'images/auction.jpg',
@@ -177,9 +211,19 @@ class _ListTenderPageState extends State<ListTenderPage> {
             SizedBox(height: 20.0),
             Expanded(
               child: sliverList,
-            )
+            ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return SearchPage();
+          }));
+        },
+        child: Icon(Icons.search),
+        backgroundColor: redTel,
+        elevation: 50.0,
       ),
     );
   }

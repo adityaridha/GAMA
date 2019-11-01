@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class TenderDetailPage extends StatefulWidget {
-  TenderDetailPage({Key key, this.title}) : super(key: key);
-
-  final String title;
+  final String url;
+  TenderDetailPage({Key key, this.url}) : super(key: key);
 
   @override
   _TenderDetailPageState createState() => _TenderDetailPageState();
@@ -24,6 +23,8 @@ class _TenderDetailPageState extends State<TenderDetailPage> {
     final redTel = Color(0xffc90623);
 
 
+    final String url = widget.url;
+    print(url);
 
     return Scaffold(
       appBar: AppBar(
@@ -31,7 +32,7 @@ class _TenderDetailPageState extends State<TenderDetailPage> {
         backgroundColor: redTel,
       ),
       body: WebView(
-        initialUrl: "http://lpse.bangkatengahkab.go.id/eproc4/lelang/2571139/pengumumanlelang",
+        initialUrl: url,
         onWebViewCreated: (WebViewController webViewController){
           _controller.complete(webViewController);
         }

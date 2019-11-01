@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:telkom_bidding_app/controller/api_call.dart';
+import 'package:telkom_bidding_app/view/list_tender_page.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key key, this.title}) : super(key: key);
@@ -10,18 +12,51 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final textBoxEdgeInset = EdgeInsets.fromLTRB(2.0, 15.0, 2.0, 15.0);
+  final gamaTextStyle = TextStyle(fontFamily: 'Cocogoose', fontSize: 40);
+
+  var NIKController = TextEditingController();
+  var emailController = TextEditingController();
+  var passwordController = TextEditingController();
+  var repeatPasswordController = TextEditingController();
+  var nameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final regLabelStyle = TextStyle(fontSize: 15);
     final redTel = Color(0xffc90623);
 
+    var regsiterStatus;
+
+    final nameField = Column(
+      children: <Widget>[
+        TextFormField(
+          decoration: InputDecoration(
+            icon: Icon(Icons.person),
+            contentPadding: textBoxEdgeInset,
+            labelText: "Nama",
+            labelStyle: regLabelStyle,
+          ),
+          controller: nameController,
+        ),
+      ],
+    );
+
     final emailField = Column(
       children: <Widget>[
-        TextField(
+        TextFormField(
           decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(5.0, 15.0, 5.0, 15.0),
-              labelText: "Email",
-              labelStyle: regLabelStyle),
+            icon: Icon(Icons.email),
+            contentPadding: textBoxEdgeInset,
+            labelText: "Email",
+            labelStyle: regLabelStyle,
+          ),
+          controller: emailController,
         ),
       ],
     );
@@ -31,9 +66,12 @@ class _RegisterPageState extends State<RegisterPage> {
         TextField(
           obscureText: true,
           decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(5.0, 15.0, 5.0, 15.0),
-              labelText: "Password",
-              labelStyle: regLabelStyle),
+            icon: Icon(Icons.lock),
+            contentPadding: textBoxEdgeInset,
+            labelText: "Password",
+            labelStyle: regLabelStyle,
+          ),
+          controller: passwordController,
         ),
       ],
     );
@@ -43,9 +81,11 @@ class _RegisterPageState extends State<RegisterPage> {
         TextField(
           obscureText: true,
           decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(5.0, 15.0, 5.0, 15.0),
+              icon: Icon(Icons.lock),
+              contentPadding: textBoxEdgeInset,
               labelText: "Confirm Password",
               labelStyle: regLabelStyle),
+          controller: repeatPasswordController,
         ),
       ],
     );
@@ -54,12 +94,88 @@ class _RegisterPageState extends State<RegisterPage> {
       children: <Widget>[
         TextField(
           decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(5.0, 15.0, 5.0, 15.0),
+              icon: Icon(Icons.credit_card),
+              contentPadding: textBoxEdgeInset,
               labelText: "NIK",
               labelStyle: regLabelStyle),
+          controller: NIKController,
         ),
       ],
     );
+
+    final alertRegister = AlertDialog(content: Text('Registration Gagal'));
+
+    final newAlertRegister = AlertDialog(
+      title: Center(child: Text("Oops")),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            'Pendaftaran gagal, coba cek kembali data data yang anda masukan',
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 10.0),
+          Center(
+            child: FlatButton(
+              shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
+              color: redTel,
+              child: Center(child: Text("OK", style: TextStyle(color: Colors.white),)),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        ],
+      ),
+      shape:
+      RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
+    );
+
+    void failedRegister(BuildContext context) {
+      print("Register Failed");
+      Navigator.pop(context);
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return newAlertRegister;
+          });
+    }
+
+    ;
+
+    final loadingRegister = AlertDialog(content: Text('Loading'));
+
+    Widget registerLogic() {
+      if (regsiterStatus == null) {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return loadingRegister;
+            });
+      }
+      ;
+
+      APICall.register(nameController.text, NIKController.text,
+              emailController.text, passwordController.text)
+          .then((value) {
+        setState(() {
+          regsiterStatus = value.statusCode;
+        });
+
+        if (regsiterStatus == 200) {
+          print("Register success");
+          Navigator.pop(context);
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return ListTenderPage();
+          }));
+        } else {
+          print("already got status ${regsiterStatus}");
+          failedRegister(context);
+        }
+      });
+    }
+
+    ;
 
     final registerButton = Material(
       elevation: 5.0,
@@ -75,7 +191,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 fontWeight: FontWeight.bold,
                 fontSize: 20.0)),
         onPressed: () {
-          print("rge");
+          registerLogic();
         },
       ),
     );
@@ -85,16 +201,12 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Text.rich(
           TextSpan(
             children: <TextSpan>[
-              TextSpan(
-                  text: 'GA',
-                  style: TextStyle(fontFamily: 'Cocogoose', fontSize: 40)),
+              TextSpan(text: 'GA', style: gamaTextStyle),
               TextSpan(
                   text: 'M',
                   style: TextStyle(
                       color: redTel, fontFamily: 'Cocogoose', fontSize: 40)),
-              TextSpan(
-                  text: 'A',
-                  style: TextStyle(fontFamily: 'Cocogoose', fontSize: 40)),
+              TextSpan(text: 'A', style: gamaTextStyle),
             ],
           ),
         ),
@@ -116,12 +228,15 @@ class _RegisterPageState extends State<RegisterPage> {
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(35.0, 0, 35, 10),
+            padding: const EdgeInsets.fromLTRB(40.0, 10, 40, 10),
             child: Column(
               children: <Widget>[
+                SizedBox(height: 10.0),
                 title,
                 subtitle,
                 SizedBox(height: 20.0),
+                nameField,
+                SizedBox(height: 15.0),
                 NIKField,
                 SizedBox(height: 15.0),
                 emailField,
