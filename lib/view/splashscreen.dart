@@ -23,7 +23,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
     final redTel = Color(0xffc90623);
 
     return SplashScreen(
-        seconds: 5,
+        seconds: 4,
         navigateAfterSeconds: new LoginPage(),
         title: Text('GAMA',
           style:TextStyle(fontFamily: 'Cocogoose', fontSize: 60, color: Colors.white),),

@@ -159,7 +159,7 @@ class _LoginPageState extends State<LoginPage> {
       }
       ;
 
-//      if (_passwodFormKey.currentState.validate()) {
+      if (_passwodFormKey.currentState.validate()) {
       APICall.login(emailController.text, passwordController.text)
           .then((value) {
         setState(() {
@@ -176,9 +176,9 @@ class _LoginPageState extends State<LoginPage> {
           failedLogin(context);
         }
       });
-//      }else{
-//        print("Usernamee and password Can't be empty");
-//      }
+      }else{
+        print("Usernamee and password Can't be empty");
+      }
     }
 
     ;
