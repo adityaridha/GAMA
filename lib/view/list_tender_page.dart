@@ -26,18 +26,12 @@ class _ListTenderPageState extends State<ListTenderPage> {
     UserList.connectToAPI().then((value) {
       setState(() {
         userList = value;
-        print(userList);
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final europeanCountries = [
-      'Belanja modal pengadaan jalan khusus (conblock) di RTH Taman Terentang',
-      'Pembangunan Jalan Dusun Pangkalraya Kel. Sungaiselan Kec. Sungaiselan',
-    ];
-
     final sliverListItem = SliverFixedExtentList(
       itemExtent: 135.0,
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
@@ -67,7 +61,7 @@ class _ListTenderPageState extends State<ListTenderPage> {
                           ),
                           SizedBox(width: 7.0),
                           Text("",
-                              style: TextStyle(backgroundColor: Colors.grey)),
+                              style: TextStyle(backgroundColor: Colors.grey))
                         ],
                       ),
                       SizedBox(height: 7.0),
@@ -106,43 +100,39 @@ class _ListTenderPageState extends State<ListTenderPage> {
                         userList.users[index].title,
                         style: TextStyle(fontSize: 15.0),
                         maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      subtitle: Column(
+                      subtitle: Column(children: <Widget>[
+                        SizedBox(height: 15.0),
+                        Row(
                           children: <Widget>[
-                            SizedBox(height: 15.0),
-                            Row(
-                              children: <Widget>[
-                                Icon(
-                                  Icons.pin_drop,
-                                  size: 15.0,
-                                  color: Colors.blue,
-                                ),
-                                SizedBox(width: 7.0),
-                                Flexible(
-                                    child: Text(
-                                  userList.users[index].institution,
-                                  maxLines: 2,
-                                )),
-                              ],
+                            Icon(
+                              Icons.pin_drop,
+                              size: 15.0,
+                              color: Colors.blue,
                             ),
-                            SizedBox(height: 7.0),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Rp " + userList.users[index].value,
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            )
-                          ]),
-                      trailing: Icon(
-                        Icons.arrow_right,
-                        color: Colors.blue,
-                      ),
+                            SizedBox(width: 7.0),
+                            Flexible(
+                                child: Text(
+                              userList.users[index].instansi,
+                              maxLines: 2,
+                            )),
+                          ],
+                        ),
+                        SizedBox(height: 7.0),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text("Rp " + userList.users[index].pagu,
+                              style: TextStyle(color: Colors.black)),
+                        )
+                      ]),
+                      trailing: Icon(Icons.arrow_right, color: Colors.blue),
                       onTap: () {
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
-                              print(userList.users[index].id);
-                          return TenderDetailPage(url: userList.users[index].url,);
+                          print(userList.users[index].id);
+                          return TenderDetailPage(
+                              url: userList.users[index].link);
                         }));
                       },
                     ),
@@ -160,45 +150,33 @@ class _ListTenderPageState extends State<ListTenderPage> {
       child: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
-            floating: true,
-            pinned: true,
-            elevation: 50.0,
-            expandedHeight: 250.0,
-            backgroundColor: redTel,
-            actions: <Widget>[
-              InkWell(
-                onTap: () {
-                  print("go to settings");
-
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return SettingsPage();
-                  }));
-                },
-                child: Center(
-                  child: Container(
-                    child: Icon(
-                      Icons.settings,
-                      color: Colors.white,
-                    ),
-                    padding: EdgeInsets.only(right: 20),
+              floating: true,
+              pinned: true,
+              elevation: 50.0,
+              expandedHeight: 250.0,
+              backgroundColor: redTel,
+              actions: <Widget>[
+                InkWell(
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return SettingsPage();
+                    }));
+                  },
+                  child: Center(
+                    child: Container(
+                        child: Icon(Icons.settings, color: Colors.white),
+                        padding: EdgeInsets.only(right: 20)),
                   ),
                 ),
-              ),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: Image.asset(
-                'images/auction.jpg',
-                fit: BoxFit.cover,
-                color: Color.fromRGBO(213, 6, 32, 1.0),
-                colorBlendMode: BlendMode.darken,
-              ),
-              title: Text('LIST TENDER'),
-              centerTitle: true,
-            ),
-          ),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(0, 1, 0, 0),
-          ),
+              ],
+              flexibleSpace: FlexibleSpaceBar(
+                  background: Image.asset('images/auction.jpg',
+                      fit: BoxFit.cover,
+                      color: Color.fromRGBO(213, 6, 32, 1.0),
+                      colorBlendMode: BlendMode.darken),
+                  title: Text('LIST TENDER'),
+                  centerTitle: true)),
           sliverListItem
         ],
       ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tags/tag.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key, this.title}) : super(key: key);
@@ -11,10 +10,42 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  List<Widget> blacklistItem = [];
+  List<String> blacklistWord = [];
+  var wordController = TextEditingController();
+
+  Widget templateChip(String title) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(5, 0, 5, 0),
+      child: InputChip(
+        label: Text(title),
+        onDeleted: () {
+          setState(() {
+            print(blacklistWord);
+            blacklistWord.remove(title);
+            print(blacklistWord);
+            blacklistItem.clear();
+
+            for(var word in blacklistWord){
+              blacklistItem.add(templateChip(word));
+            }
+
+
+          });
+        },
+        elevation: 1,
+      ),
+    );
+  }
+
+  _SettingsPageState() {
+    print("Konstruktor dipanggil");
+  }
 
   // Item Generator For Sorting
   SortBy selectedMethod;
   List<SortBy> method = [SortBy("Date"), SortBy("Tender Value")];
+
   List<DropdownMenuItem> generateItem(List<SortBy> method) {
     List<DropdownMenuItem> items = [];
     for (var item in method) {
@@ -39,6 +70,7 @@ class _SettingsPageState extends State<SettingsPage> {
     FilterBy("Kabupaten Bangka Tengah"),
     FilterBy("Pangkal Pinang"),
   ];
+
   List<DropdownMenuItem> generateListInstitutions(List<FilterBy> institution) {
     List<DropdownMenuItem> items = [];
     for (var item in institution) {
@@ -104,32 +136,25 @@ class _SettingsPageState extends State<SettingsPage> {
         Container(
           padding: EdgeInsets.only(left: 10),
           child: Align(
-            child: Text("Filter By : "),
-            alignment: Alignment.centerLeft,
-          ),
+              child: Text("Filter By : "), alignment: Alignment.centerLeft),
           margin: EdgeInsets.only(bottom: 5),
         ),
         Container(
             decoration: BoxDecoration(
               borderRadius: new BorderRadius.circular(10.0),
-              border: Border.all(
-                width: 2,
-                color: Colors.grey,
-              ),
+              border: Border.all(color: Colors.grey),
             ),
             child: Row(
               children: <Widget>[
-                SizedBox(
-                  width: 10,
-                ),
+                SizedBox(width: 10),
                 Expanded(
                   child: DropdownButton(
                     elevation: 20,
                     value: selectInstitution,
-                    style: TextStyle(color: redTel),
+                    style: TextStyle(color: Colors.black),
                     items: generateListInstitutions(institution),
                     isExpanded: true,
-                    icon: Icon(Icons.business),
+                    icon: Icon(Icons.arrow_drop_down),
                     onChanged: (method) {
                       setState(() {
                         selectInstitution = method;
@@ -137,64 +162,70 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                 ),
-                SizedBox(
-                  width: 10,
-                ),
+                SizedBox(width: 10),
               ],
             )),
       ],
     );
 
-    final sortByOptions = Column(
-      children: <Widget>[
-        Container(
+    final sortByOptions = Column(children: <Widget>[
+      Container(
           padding: EdgeInsets.only(left: 10),
-          child: Align(
-            child: Text("Sort By : "),
-            alignment: Alignment.centerLeft,
-          ),
-          margin: EdgeInsets.only(bottom: 5),
-        ),
-        Container(
-            decoration: BoxDecoration(
+          child:
+              Align(child: Text("Sort By : "), alignment: Alignment.centerLeft),
+          margin: EdgeInsets.only(bottom: 5)),
+      Container(
+          decoration: BoxDecoration(
               borderRadius: new BorderRadius.circular(10.0),
-              border: Border.all(
-                width: 2,
-                color: Colors.grey,
+              border: Border.all(color: Colors.grey)),
+          child: Row(children: <Widget>[
+            SizedBox(width: 10),
+            Expanded(
+              child: DropdownButton(
+                elevation: 20,
+                value: selectedMethod,
+                style: TextStyle(color: Colors.black),
+                items: generateItem(method),
+                isExpanded: true,
+                icon: Icon(Icons.arrow_drop_down),
+                onChanged: (value) {
+                  setState(() {
+                    selectedMethod = value;
+                  });
+                },
               ),
             ),
-            child: Row(
-              children: <Widget>[
-                SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                  child: DropdownButton(
-                    elevation: 20,
-                    value: selectedMethod,
-                    style: TextStyle(color: redTel),
-                    items: generateItem(method),
-                    isExpanded: true,
-                    icon: Icon(Icons.sort),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedMethod = value;
-                      });
-                    },
-                  ),
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-              ],
-            )),
-      ],
-    );
+            SizedBox(width: 10)
+          ])),
+    ]);
 
-    final blackListWord = Tags(
-      textField: TagsTextField(hintTextColor: Colors.amber),
-      itemCount: 5,
-      heightHorizontalScroll: 50,
+    final blackListInput = TextFormField(
+      controller: wordController,
+      decoration: InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          prefixIcon: Padding(
+              padding: EdgeInsets.only(left: 20.0),
+              child: Container(
+                padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                child: Icon(
+                  Icons.security,
+                  size: 22.0,
+                ),
+              )),
+          hintText: "Add Black List Keyword",
+          hintStyle: TextStyle(fontSize: 13),
+          border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
+      textInputAction: TextInputAction.done,
+      onFieldSubmitted: (value) {
+        setState(() {
+          blacklistWord.add(value);
+          blacklistItem.add(templateChip(value));
+          wordController.clear();
+          print(blacklistWord);
+        });
+
+      },
     );
 
     return Scaffold(
@@ -211,19 +242,16 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Column(
               children: <Widget>[
                 filterInstitutions,
-                SizedBox(
-                  height: 20,
-                ),
+                SizedBox(height: 15),
                 sortByOptions,
-                SizedBox(
-                  height: 50,
-                ),
+                SizedBox(height: 15),
+                blackListInput,
+                SizedBox(height: 10),
+                Wrap(children: blacklistItem),
+                SizedBox(height: 20),
                 saveSettings,
-                SizedBox(
-                  height: 10,
-                ),
-                logoutButton,
-                blackListWord,
+                SizedBox(height: 10),
+                logoutButton
               ],
             ),
           ),
@@ -233,15 +261,14 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 }
 
-
 class SortBy {
   String method;
+
   SortBy(this.method);
 }
 
 class FilterBy {
   String institution;
+
   FilterBy(this.institution);
 }
-
-

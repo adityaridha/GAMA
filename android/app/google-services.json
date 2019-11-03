@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "898332249068",
+    "firebase_url": "https://gama-apps.firebaseio.com",
+    "project_id": "gama-apps",
+    "storage_bucket": "gama-apps.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:898332249068:android:b41b12561d58edc2644ec9",
+        "android_client_info": {
+          "package_name": "com.telkom.telkom_bidding_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "898332249068-8japl9pipv1b3c4o6b4so9irc2u41chj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCV-Vz5e3iQ3_4dQMY5kD-UXYe7Iw3VgRI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "898332249068-8japl9pipv1b3c4o6b4so9irc2u41chj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

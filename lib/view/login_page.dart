@@ -3,6 +3,7 @@ import 'package:telkom_bidding_app/controller/api_call.dart';
 import 'package:telkom_bidding_app/model/list_tender_model.dart';
 import 'package:telkom_bidding_app/view/list_tender_page.dart';
 import 'package:telkom_bidding_app/view/register_page.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 //import 'package:fancy_dialog/fancy_dialog.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,6 +16,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
+  FirebaseMessaging _messaging = FirebaseMessaging();
+
+
   final _NIKformKey = GlobalKey<FormState>();
   final _passwodFormKey = GlobalKey<FormState>();
   var emailController = TextEditingController();
@@ -27,6 +32,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    _messaging.getToken().then((token){
+      print(token);
+    });
   }
 
   @override
@@ -97,6 +105,32 @@ class _LoginPageState extends State<LoginPage> {
           },
         ));
 
+    final gangguanServer = AlertDialog(
+      title: Center(child: Text("Oops")),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            'Sepertinya ada gangguan server. Tetap tenang tetap semangat !',
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 10.0),
+          Center(
+            child: FlatButton(
+              shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
+              color: redTel,
+              child: Center(child: Text("OK", style: TextStyle(color: Colors.white),)),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        ],
+      ),
+      shape:
+      RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
+    );
+
     final alertLogin = AlertDialog(
       title: Center(child: Text("Oops")),
       content: Column(
@@ -122,14 +156,6 @@ class _LoginPageState extends State<LoginPage> {
       shape:
           RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
     );
-
-//    final newAlert = showDialog(
-//        context: context,
-//        builder: (BuildContext context) => FancyDialog(
-//          title: "Fancy Gif Dialog",
-//          descreption: "This is descreption for fancy gif,you can load any image or gif to be displayed :), and you can choose between two themes Fancy and Flat",
-//        )
-//    );
 
     final loadingLogin = AlertDialog(
       content: Text('Loading...'),
@@ -172,6 +198,14 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return ListTenderPage();
           }));
+        } else if (status == 502 || status == 500) {
+          print("Gangguan Server");
+          Navigator.pop(context);
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return gangguanServer;
+              });
         } else {
           failedLogin(context);
         }
