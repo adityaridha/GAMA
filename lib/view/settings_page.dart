@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:telkom_bidding_app/view/list_tender_page.dart';
+import 'package:telkom_bidding_app/view/login_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key, this.title}) : super(key: key);
@@ -14,6 +17,35 @@ class _SettingsPageState extends State<SettingsPage> {
   List<String> blacklistWord = [];
   var wordController = TextEditingController();
 
+  final instansikey = 'instansiKey';
+  String initInstitusi;
+
+  Future<String> _readFilterInstansi() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(instansikey) ?? "";
+    print('read: $value');
+    return value;
+  }
+
+  _saveFilterInstansi(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(instansikey, value);
+    print('saved $value');
+  }
+
+  Future<List<String>> _readBlackListWord() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getStringList('blacklist') ?? [""];
+    print('read: $value');
+    return value;
+  }
+
+  _saveBlackListWord(List<String> words) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setStringList('blacklist', words);
+    print('saved $words');
+  }
+
   Widget templateChip(String title) {
     return Container(
       margin: EdgeInsets.fromLTRB(5, 0, 5, 0),
@@ -23,6 +55,7 @@ class _SettingsPageState extends State<SettingsPage> {
           setState(() {
             print(blacklistWord);
             blacklistWord.remove(title);
+            _saveBlackListWord(blacklistWord);
             print(blacklistWord);
             blacklistItem.clear();
 
@@ -38,8 +71,34 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+
   _SettingsPageState() {
     print("Konstruktor dipanggil");
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    print("Init State Settings Page");
+
+    _readFilterInstansi().then((value){
+      setState(() {
+        initInstitusi = value;
+      });
+    });
+
+    _readBlackListWord().then((value){
+      setState(() {
+        blacklistWord = value;
+        print(blacklistWord);
+        for(var word in blacklistWord){
+          blacklistItem.add(templateChip(word));
+        }
+      });
+    });
+
+
   }
 
   // Item Generator For Sorting
@@ -68,7 +127,6 @@ class _SettingsPageState extends State<SettingsPage> {
     FilterBy("Kabupaten Bangka Barat"),
     FilterBy("Kabupaten Bangka Selatan"),
     FilterBy("Kabupaten Bangka Tengah"),
-    FilterBy("Pangkal Pinang"),
   ];
 
   List<DropdownMenuItem> generateListInstitutions(List<FilterBy> institution) {
@@ -105,9 +163,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   fontWeight: FontWeight.bold,
                   fontSize: 17.0)),
           onPressed: () {
-//            Navigator.push(context, MaterialPageRoute(builder: (context) {
-//              return LoginPage();
-//            }));
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return LoginPage();
+            }));
           }),
     );
 
@@ -125,9 +183,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   fontWeight: FontWeight.bold,
                   fontSize: 17.0)),
           onPressed: () {
-//            Navigator.push(context, MaterialPageRoute(builder: (context) {
-//              return LoginPage();
-//            }));
+            _readFilterInstansi();
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return ListTenderPage();
+            }));
           }),
     );
 
@@ -150,6 +209,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 Expanded(
                   child: DropdownButton(
                     elevation: 20,
+                    hint: Text(initInstitusi ?? ""),
                     value: selectInstitution,
                     style: TextStyle(color: Colors.black),
                     items: generateListInstitutions(institution),
@@ -158,6 +218,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     onChanged: (method) {
                       setState(() {
                         selectInstitution = method;
+                        var ins = selectInstitution.institution;
+                        print("Institution yang dipilih $ins");
+                        _saveFilterInstansi(ins);
                       });
                     },
                   ),
@@ -191,6 +254,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 onChanged: (value) {
                   setState(() {
                     selectedMethod = value;
+                    var meth = selectedMethod.method;
+                    print("Method yang dipilih $meth");
+
                   });
                 },
               ),
@@ -222,7 +288,7 @@ class _SettingsPageState extends State<SettingsPage> {
           blacklistWord.add(value);
           blacklistItem.add(templateChip(value));
           wordController.clear();
-          print(blacklistWord);
+          _saveBlackListWord(blacklistWord);
         });
 
       },

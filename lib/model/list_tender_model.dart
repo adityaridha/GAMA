@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserList {
   final List<User> users;
@@ -16,20 +17,46 @@ class UserList {
     return new UserList(users: users);
   }
 
-  static Future<UserList> connectToAPI() async {
+
+  static Future<UserList> connectToAPI(List<String> values) async {
+
+
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString('instansiKey') ?? "";
+    final blacklist = prefs.getStringList('blacklist') ?? [""];
+
+    List<String> filter  = [];
+    filter.add(value);
+
+    print(filter);
+
+    List<String> listword = ["irigasi"];
+    listword.addAll(blacklist);
+
+
     String apiURL = "http://54.251.134.177/api/v1//tender";
     Map rawBody = {
       "page": 1,
       "limit": 200,
-      "criteria": [],
-      "values": [],
-      "blacklist_keywords": ["irigasi"]
+      "criteria": ["instansi"],
+      "values": filter,
+      "blacklist_keywords": listword,
     };
     var loginBody = json.encode(rawBody);
     var header = {'Content-Type': 'application/json'};
     var apiResult = await http.post(apiURL, body: loginBody, headers: header);
     var jsonObject = json.decode(apiResult.body);
-    return UserList.fromJson(jsonObject["data"]);
+
+    print("hasilnya $jsonObject");
+
+    if(jsonObject["data"] == null){
+      return null;
+    } else {
+      return UserList.fromJson(jsonObject["data"]);
+    }
+
+
+
   }
 }
 

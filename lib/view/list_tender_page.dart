@@ -15,7 +15,6 @@ class ListTenderPage extends StatefulWidget {
 
 class _ListTenderPageState extends State<ListTenderPage> {
   UserList userList = null;
-  User user = null;
 
   final redTel = Color(0xffc90623);
 
@@ -23,7 +22,11 @@ class _ListTenderPageState extends State<ListTenderPage> {
   void initState() {
     super.initState();
 
-    UserList.connectToAPI().then((value) {
+    print("Init State List Tender Page");
+
+    List<String> noFilter = [""];
+
+    UserList.connectToAPI(noFilter).then((value) {
       setState(() {
         userList = value;
       });

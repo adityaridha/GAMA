@@ -24,12 +24,10 @@ dependencies:
   webview_flutter: 0.3.15+1
   splashscreen:
   flutter_spinkit: ^4.0.0
-  giffy_dialog: 1.5.0
-  flutter_tags: ^0.4.5
   firebase_core: ^0.2.5  # add dependency for Firebase Core
   firebase_messaging:
-  flutter_form_builder:
-#  fancy_dialog: ^1.0.1
+  shared_preferences: ^0.5.4
+
 
 dev_dependencies:
   flutter_test:
