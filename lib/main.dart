@@ -5,9 +5,12 @@ import 'package:telkom_bidding_app/view/search_page.dart';
 import 'package:telkom_bidding_app/view/settings_page.dart';
 import 'package:telkom_bidding_app/view/splashscreen.dart';
 
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

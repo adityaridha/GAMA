@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telkom_bidding_app/controller/api_call.dart';
 import 'package:telkom_bidding_app/model/list_tender_model.dart';
 import 'package:telkom_bidding_app/view/list_tender_page.dart';
 import 'package:telkom_bidding_app/view/register_page.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-//import 'package:fancy_dialog/fancy_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title}) : super(key: key);
@@ -16,10 +18,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
-  FirebaseMessaging _messaging = FirebaseMessaging();
-
-
   final _NIKformKey = GlobalKey<FormState>();
   final _passwodFormKey = GlobalKey<FormState>();
   var emailController = TextEditingController();
@@ -27,14 +25,18 @@ class _LoginPageState extends State<LoginPage> {
 
   final redTel = Color(0xffc90623);
 
-  UserList user = null;
+  TenderList user = null;
 
-  @override
-  void initState() {
-    super.initState();
-    _messaging.getToken().then((token){
-      print(token);
-    });
+  Future<bool> isLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getBool("login") ?? false;
+    return value;
+  }
+
+  setLoggedIn(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool("login", value);
+    print('saved $value');
   }
 
   @override
@@ -65,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
               hintText: "Type Your NIK",
               hintStyle: TextStyle(fontSize: 13),
               border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0))),
+                  borderRadius: BorderRadius.circular(25.0))),
           controller: emailController,
           validator: (value) {
             if (value.isEmpty) {
@@ -95,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
               hintStyle: TextStyle(fontSize: 13),
               errorStyle: TextStyle(),
               border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0))),
+                  borderRadius: BorderRadius.circular(25.0))),
           controller: passwordController,
           validator: (value) {
             if (value.isEmpty) {
@@ -117,9 +119,14 @@ class _LoginPageState extends State<LoginPage> {
           SizedBox(height: 10.0),
           Center(
             child: FlatButton(
-              shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(15)),
               color: redTel,
-              child: Center(child: Text("OK", style: TextStyle(color: Colors.white),)),
+              child: Center(
+                  child: Text(
+                "OK",
+                style: TextStyle(color: Colors.white),
+              )),
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -128,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
       shape:
-      RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
+          RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
     );
 
     final alertLogin = AlertDialog(
@@ -143,9 +150,14 @@ class _LoginPageState extends State<LoginPage> {
           SizedBox(height: 10.0),
           Center(
             child: FlatButton(
-              shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(15)),
               color: redTel,
-              child: Center(child: Text("OK", style: TextStyle(color: Colors.white),)),
+              child: Center(
+                  child: Text(
+                "OK",
+                style: TextStyle(color: Colors.white),
+              )),
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -158,8 +170,19 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     final loadingLogin = AlertDialog(
-      content: Text('Loading...'),
-      backgroundColor: Colors.white70,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          SpinKitThreeBounce(
+            color: redTel,
+            size: 20,
+          ),
+          SizedBox(height: 5,),
+          Text("Loading"),
+        ],
+      ),
+
+      backgroundColor: Colors.white60,
     );
 
     void failedLogin(BuildContext context) {
@@ -186,31 +209,33 @@ class _LoginPageState extends State<LoginPage> {
       ;
 
       if (_passwodFormKey.currentState.validate()) {
-      APICall.login(emailController.text, passwordController.text)
-          .then((value) {
-        setState(() {
-          status = value.statusCode;
-        });
+        APICall.login(emailController.text, passwordController.text)
+            .then((value) {
+          setState(() {
+            status = value.statusCode;
+          });
 
-        if (status == 200) {
-          print("Success Login");
-          Navigator.pop(context);
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return ListTenderPage();
-          }));
-        } else if (status == 502 || status == 500) {
-          print("Gangguan Server");
-          Navigator.pop(context);
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return gangguanServer;
-              });
-        } else {
-          failedLogin(context);
-        }
-      });
-      }else{
+          if (status == 200) {
+            setLoggedIn(true);
+            print("Success Login");
+            Navigator.pop(context);
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) {
+              return ListTenderPage();
+            }));
+          } else if (status == 502 || status == 500) {
+            print("Gangguan Server");
+            Navigator.pop(context);
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return gangguanServer;
+                });
+          } else {
+            failedLogin(context);
+          }
+        });
+      } else {
         print("Usernamee and password Can't be empty");
       }
     }
@@ -219,7 +244,7 @@ class _LoginPageState extends State<LoginPage> {
 
     final loginButton = Material(
       elevation: 5.0,
-      borderRadius: BorderRadius.circular(30.0),
+      borderRadius: BorderRadius.circular(25.0),
       color: redTel,
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
@@ -238,7 +263,7 @@ class _LoginPageState extends State<LoginPage> {
 
     final register = InkWell(
       child: Text(
-        "Register",
+        "REGISTER",
         style: TextStyle(color: Colors.grey),
       ),
       onTap: () {

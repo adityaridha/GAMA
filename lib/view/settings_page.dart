@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telkom_bidding_app/view/list_tender_page.dart';
 import 'package:telkom_bidding_app/view/login_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key, this.title}) : super(key: key);
@@ -13,37 +14,93 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  _SettingsPageState() {
+    print("Konstruktor dipanggil");
+  }
+
+  final redTel = Color(0xffc90623);
+
+//  Blacklist word initialization section
+
   List<Widget> blacklistItem = [];
   List<String> blacklistWord = [];
-  var wordController = TextEditingController();
+  var blackWordController = TextEditingController();
 
-  final instansikey = 'instansiKey';
+  Future<List<String>> _readBlackListWord() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList('blacklist') ?? [];
+  }
+
+  _saveBlackListWord(List<String> words) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setStringList('blacklist', words);
+  }
+
+//  Blacklist word End Section
+
+//  Whitelist word initialization section
+
+  List<Widget> whitelistItem = [];
+  List<String> whitelistWord = [
+    "jaringan",
+    "server",
+    "network",
+    "komputer",
+    "perangkat",
+    "server",
+    "fiber",
+    "optik",
+    "aplikasi",
+    "internet",
+    "datacenter"
+  ];
+  var whiteWordController = TextEditingController();
+
+  Future<List<String>> _readWhiteListWord() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList('whitelist') ?? [];
+  }
+
+  _saveWhiteListWord(List<String> words) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setStringList('whitelist', words);
+  }
+
+//  Blacklist word End Section
+
   String initInstitusi;
+  String initSort;
 
   Future<String> _readFilterInstansi() async {
     final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(instansikey) ?? "";
+    final value = prefs.getString('instansiKey') ?? "";
     print('read: $value');
     return value;
   }
 
   _saveFilterInstansi(String value) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString(instansikey, value);
+    prefs.setString('instansiKey', value);
     print('saved $value');
   }
 
-  Future<List<String>> _readBlackListWord() async {
+  Future<bool> _readSorting() async {
     final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getStringList('blacklist') ?? [""];
+    final value = prefs.getBool("sorting") ?? false;
     print('read: $value');
     return value;
   }
 
-  _saveBlackListWord(List<String> words) async {
+  _saveSorting(bool value) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setStringList('blacklist', words);
-    print('saved $words');
+    prefs.setBool("sorting", value);
+    print('saved $value');
+  }
+
+  setLoggedIn(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool("login", value);
+    print('saved $value');
   }
 
   Widget templateChip(String title) {
@@ -53,17 +110,13 @@ class _SettingsPageState extends State<SettingsPage> {
         label: Text(title),
         onDeleted: () {
           setState(() {
-            print(blacklistWord);
             blacklistWord.remove(title);
             _saveBlackListWord(blacklistWord);
-            print(blacklistWord);
             blacklistItem.clear();
 
-            for(var word in blacklistWord){
+            for (var word in blacklistWord) {
               blacklistItem.add(templateChip(word));
             }
-
-
           });
         },
         elevation: 1,
@@ -71,34 +124,66 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Widget whiteTemplateChip(String title) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(5, 0, 5, 0),
+      child: InputChip(
+        label: Text(title),
+        onDeleted: () {
+          setState(() {
+            whitelistWord.remove(title);
+            _saveWhiteListWord(whitelistWord);
+            whitelistItem.clear();
 
-  _SettingsPageState() {
-    print("Konstruktor dipanggil");
+            for (var word in whitelistWord) {
+              whitelistItem.add(whiteTemplateChip(word));
+            }
+          });
+        },
+        elevation: 1,
+      ),
+    );
   }
 
   @override
   void initState() {
     super.initState();
 
-    print("Init State Settings Page");
-
-    _readFilterInstansi().then((value){
+    _readFilterInstansi().then((value) {
       setState(() {
         initInstitusi = value;
       });
     });
 
-    _readBlackListWord().then((value){
+    _readSorting().then((value) {
+      setState(() {
+        if (value == true) {
+          initSort = "Tender Value";
+        } else {
+          initSort = "Date";
+        }
+      });
+    });
+
+    _readBlackListWord().then((value) {
       setState(() {
         blacklistWord = value;
-        print(blacklistWord);
-        for(var word in blacklistWord){
+        print("ini blacklist : $blacklistWord");
+        for (var word in blacklistWord) {
           blacklistItem.add(templateChip(word));
         }
       });
     });
 
-
+    _readWhiteListWord().then((value) {
+      setState(() {
+        whitelistWord = value;
+        print("ini whitelist : $whitelistWord");
+        for (var word in whitelistWord) {
+          whitelistItem.add(whiteTemplateChip(word));
+        }
+      });
+    });
   }
 
   // Item Generator For Sorting
@@ -124,9 +209,12 @@ class _SettingsPageState extends State<SettingsPage> {
   // Item Generator For Filtering
   FilterBy selectInstitution;
   List<FilterBy> institution = [
+    FilterBy("None"),
     FilterBy("Kabupaten Bangka Barat"),
     FilterBy("Kabupaten Bangka Selatan"),
     FilterBy("Kabupaten Bangka Tengah"),
+    FilterBy("Kepulauan Bangka Belitung"),
+    FilterBy("Kabupaten Belitung"),
   ];
 
   List<DropdownMenuItem> generateListInstitutions(List<FilterBy> institution) {
@@ -147,7 +235,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final redTel = Color(0xffc90623);
 
     final logoutButton = Material(
       elevation: 5.0,
@@ -163,7 +250,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   fontWeight: FontWeight.bold,
                   fontSize: 17.0)),
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
+            setLoggedIn(false);
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
               return LoginPage();
             }));
           }),
@@ -183,8 +271,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   fontWeight: FontWeight.bold,
                   fontSize: 17.0)),
           onPressed: () {
-            _readFilterInstansi();
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
               return ListTenderPage();
             }));
           }),
@@ -195,7 +282,7 @@ class _SettingsPageState extends State<SettingsPage> {
         Container(
           padding: EdgeInsets.only(left: 10),
           child: Align(
-              child: Text("Filter By : "), alignment: Alignment.centerLeft),
+              child: Text("Filter by : "), alignment: Alignment.centerLeft),
           margin: EdgeInsets.only(bottom: 5),
         ),
         Container(
@@ -207,24 +294,26 @@ class _SettingsPageState extends State<SettingsPage> {
               children: <Widget>[
                 SizedBox(width: 10),
                 Expanded(
-                  child: DropdownButton(
-                    elevation: 20,
-                    hint: Text(initInstitusi ?? ""),
-                    value: selectInstitution,
-                    style: TextStyle(color: Colors.black),
-                    items: generateListInstitutions(institution),
-                    isExpanded: true,
-                    icon: Icon(Icons.arrow_drop_down),
-                    onChanged: (method) {
-                      setState(() {
-                        selectInstitution = method;
-                        var ins = selectInstitution.institution;
-                        print("Institution yang dipilih $ins");
-                        _saveFilterInstansi(ins);
-                      });
-                    },
-                  ),
-                ),
+                    child: DropdownButton(
+                  elevation: 20,
+                  hint: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(initInstitusi ?? "",
+                          style: TextStyle(color: Colors.black))),
+                  value: selectInstitution,
+                  style: TextStyle(color: Colors.black),
+                  items: generateListInstitutions(institution),
+                  isExpanded: true,
+                  icon: Icon(Icons.arrow_drop_down),
+                  onChanged: (method) {
+                    setState(() {
+                      selectInstitution = method;
+                      var ins = selectInstitution.institution;
+                      print("Institution yang dipilih $ins");
+                      _saveFilterInstansi(ins);
+                    });
+                  },
+                )),
                 SizedBox(width: 10),
               ],
             )),
@@ -235,7 +324,7 @@ class _SettingsPageState extends State<SettingsPage> {
       Container(
           padding: EdgeInsets.only(left: 10),
           child:
-              Align(child: Text("Sort By : "), alignment: Alignment.centerLeft),
+              Align(child: Text("Sort by : "), alignment: Alignment.centerLeft),
           margin: EdgeInsets.only(bottom: 5)),
       Container(
           decoration: BoxDecoration(
@@ -245,6 +334,11 @@ class _SettingsPageState extends State<SettingsPage> {
             SizedBox(width: 10),
             Expanded(
               child: DropdownButton(
+                hint: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(initSort ?? "",
+                      style: TextStyle(color: Colors.black)),
+                ),
                 elevation: 20,
                 value: selectedMethod,
                 style: TextStyle(color: Colors.black),
@@ -256,7 +350,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     selectedMethod = value;
                     var meth = selectedMethod.method;
                     print("Method yang dipilih $meth");
-
+                    if (meth == "Tender Value") {
+                      _saveSorting(true);
+                    } else {
+                      _saveSorting(false);
+                    }
                   });
                 },
               ),
@@ -266,7 +364,7 @@ class _SettingsPageState extends State<SettingsPage> {
     ]);
 
     final blackListInput = TextFormField(
-      controller: wordController,
+      controller: blackWordController,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           prefixIcon: Padding(
@@ -278,21 +376,54 @@ class _SettingsPageState extends State<SettingsPage> {
                   size: 22.0,
                 ),
               )),
-          hintText: "Add Black List Keyword",
+          hintText: "Add blacklist keyword",
           hintStyle: TextStyle(fontSize: 13),
           border:
               OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (value) {
-        setState(() {
-          blacklistWord.add(value);
-          blacklistItem.add(templateChip(value));
-          wordController.clear();
-          _saveBlackListWord(blacklistWord);
-        });
-
+        if (value != "") {
+          setState(() {
+            blacklistWord.add(value);
+            blacklistItem.add(templateChip(value));
+            blackWordController.clear();
+            _saveBlackListWord(blacklistWord);
+          });
+        }
       },
     );
+
+    final whiteListInput = TextFormField(
+      controller: whiteWordController,
+      decoration: InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          prefixIcon: Padding(
+              padding: EdgeInsets.only(left: 20.0),
+              child: Container(
+                padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                child: Icon(
+                  Icons.spellcheck,
+                  size: 22.0,
+                ),
+              )),
+          hintText: "Add whitelits keyword",
+          hintStyle: TextStyle(fontSize: 13),
+          border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
+      textInputAction: TextInputAction.done,
+      onFieldSubmitted: (value) {
+        if (value != "") {
+          setState(() {
+            whitelistWord.add(value);
+            whitelistItem.add(whiteTemplateChip(value));
+            whiteWordController.clear();
+            _saveWhiteListWord(whitelistWord);
+          });
+        }
+      },
+    );
+
+    final lpseListInput = AutoCompleteTextField(itemSubmitted: null, key: null, suggestions: null, itemBuilder: null, itemSorter: null, itemFilter: null);
 
     return Scaffold(
       appBar: AppBar(
@@ -311,10 +442,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 SizedBox(height: 15),
                 sortByOptions,
                 SizedBox(height: 15),
+                whiteListInput,
+                SizedBox(height: 10),
+                Wrap(children: whitelistItem),
+                SizedBox(height: 15),
                 blackListInput,
                 SizedBox(height: 10),
                 Wrap(children: blacklistItem),
-                SizedBox(height: 20),
+                SizedBox(height: 30),
                 saveSettings,
                 SizedBox(height: 10),
                 logoutButton

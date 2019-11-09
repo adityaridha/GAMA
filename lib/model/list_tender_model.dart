@@ -2,43 +2,59 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:telkom_bidding_app/utility/sort_tender.dart';
 
-class UserList {
-  final List<User> users;
+class TenderList {
+  final List<Tender> tenders;
 
-  UserList({
-    this.users,
+  TenderList({
+    this.tenders,
   });
 
-  factory UserList.fromJson(List<dynamic> parsedJson) {
-    List<User> users = new List<User>();
-    users = parsedJson.map((i) => User.fromJson(i)).toList();
+  factory TenderList.fromJson(List<dynamic> parsedJson) {
+    List<Tender> tenders = new List<Tender>();
+    tenders = parsedJson.map((i) => Tender.fromJson(i)).toList();
 
-    return new UserList(users: users);
+    return new TenderList(tenders: tenders);
   }
 
-
-  static Future<UserList> connectToAPI(List<String> values) async {
-
-
+  static Future<TenderList> getTenders(List<String> mode) async {
     final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString('instansiKey') ?? "";
-    final blacklist = prefs.getStringList('blacklist') ?? [""];
 
-    List<String> filter  = [];
-    filter.add(value);
+    final filterinstansi = prefs.getString('instansiKey') ?? "";
+    final blacklist = prefs.getStringList('blacklist') ?? ["pipa"];
+    final sortState = prefs.getBool("sorting") ?? false;
 
-    print(filter);
+    SortTender sortTender = new SortTender();
 
+    List<String> filter = [];
     List<String> listword = ["irigasi"];
+    List<String> searchCriteria = [""];
     listword.addAll(blacklist);
 
+    print(mode);
+
+    if (mode[0] == "nosearch") {
+      searchCriteria = ["instansi"];
+      if (filterinstansi == "None") {
+        filter = [""];
+      } else {
+        filter = [filterinstansi];
+      }
+    } else {
+      searchCriteria = ["title"];
+      filter = mode;
+    }
+
+    print("Criteria : $searchCriteria");
+    print("Values : $filter");
+    print("keyword : $listword");
 
     String apiURL = "http://54.251.134.177/api/v1//tender";
     Map rawBody = {
       "page": 1,
       "limit": 200,
-      "criteria": ["instansi"],
+      "criteria": searchCriteria,
       "values": filter,
       "blacklist_keywords": listword,
     };
@@ -46,21 +62,23 @@ class UserList {
     var header = {'Content-Type': 'application/json'};
     var apiResult = await http.post(apiURL, body: loginBody, headers: header);
     var jsonObject = json.decode(apiResult.body);
+    var listTender = jsonObject['data'];
 
-    print("hasilnya $jsonObject");
+    print("Runtype List Tender ${listTender.runtimeType}");
 
-    if(jsonObject["data"] == null){
-      return null;
-    } else {
-      return UserList.fromJson(jsonObject["data"]);
+    if (sortState == true) {
+      listTender = sortTender.sortByValue(listTender);
     }
 
-
-
+    if (listTender == null) {
+      return null;
+    } else {
+      return TenderList.fromJson(listTender);
+    }
   }
 }
 
-class User {
+class Tender {
   int id;
   String link;
   String title;
@@ -68,10 +86,10 @@ class User {
   String status;
   String pagu;
 
-  User({this.id, this.title, this.instansi, this.pagu, this.link, this.status});
+  Tender({this.id, this.title, this.instansi, this.pagu, this.link, this.status});
 
-  factory User.fromJson(Map<String, dynamic> object) {
-    return User(
+  factory Tender.fromJson(Map<String, dynamic> object) {
+    return Tender(
         id: object['id'],
         title: object['title'],
         instansi: object['instansi'],

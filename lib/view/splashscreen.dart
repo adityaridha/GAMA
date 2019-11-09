@@ -1,8 +1,10 @@
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splashscreen/splashscreen.dart';
+import 'package:telkom_bidding_app/model/list_lpse_model.dart';
+import 'package:telkom_bidding_app/view/list_tender_page.dart';
 import 'package:telkom_bidding_app/view/login_page.dart';
-
 
 class SplashScreenPage extends StatefulWidget {
   SplashScreenPage({Key key, this.title}) : super(key: key);
@@ -13,10 +15,45 @@ class SplashScreenPage extends StatefulWidget {
   _SplashScreenPageState createState() => _SplashScreenPageState();
 }
 
-
-
 class _SplashScreenPageState extends State<SplashScreenPage> {
+  FirebaseMessaging _messaging = FirebaseMessaging();
+  bool status = false;
 
+  Future<bool> isLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getBool("login") ?? false;
+    print('Dibaca disini: $value');
+    return value;
+  }
+
+  Widget checkLogin() {
+    isLoggedIn().then((value) {
+      setState(() {
+        status = value;
+      });
+    });
+
+    if (status == true) {
+      return ListTenderPage();
+    } else {
+      return LoginPage();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _messaging.getToken().then((token) {
+      print(token);
+    });
+
+    _messaging.subscribeToTopic("tender");
+
+    LPSEList.getLPSE().then((value){
+      print("ini LPSE $value");
+    });
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,15 +61,16 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
 
     return SplashScreen(
         seconds: 4,
-        navigateAfterSeconds: new LoginPage(),
-        title: Text('GAMA',
-          style:TextStyle(fontFamily: 'Cocogoose', fontSize: 60, color: Colors.white),),
+        navigateAfterSeconds: this.checkLogin(),
+        title: Text(
+          'GAMA',
+          style: TextStyle(
+              fontFamily: 'Cocogoose', fontSize: 60, color: Colors.white),
+        ),
         backgroundColor: redTel,
         styleTextUnderTheLoader: new TextStyle(),
         photoSize: 100.0,
-        onClick: ()=>print("Flutter Egypt"),
-        loaderColor: redTel
-    );
+        onClick: () => print("Flutter Egypt"),
+        loaderColor: redTel);
   }
-  }
-
+}

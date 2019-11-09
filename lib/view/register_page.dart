@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:telkom_bidding_app/controller/api_call.dart';
 import 'package:telkom_bidding_app/view/list_tender_page.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key key, this.title}) : super(key: key);
@@ -28,7 +29,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final regLabelStyle = TextStyle(fontSize: 15);
+    final regLabelStyle = TextStyle(fontSize: 13);
     final redTel = Color(0xffc90623);
 
     var regsiterStatus;
@@ -39,7 +40,7 @@ class _RegisterPageState extends State<RegisterPage> {
           decoration: InputDecoration(
             icon: Icon(Icons.person),
             contentPadding: textBoxEdgeInset,
-            labelText: "Nama",
+            labelText: "NAMA",
             labelStyle: regLabelStyle,
           ),
           controller: nameController,
@@ -53,7 +54,7 @@ class _RegisterPageState extends State<RegisterPage> {
           decoration: InputDecoration(
             icon: Icon(Icons.email),
             contentPadding: textBoxEdgeInset,
-            labelText: "Email",
+            labelText: "EMAIL",
             labelStyle: regLabelStyle,
           ),
           controller: emailController,
@@ -68,7 +69,7 @@ class _RegisterPageState extends State<RegisterPage> {
           decoration: InputDecoration(
             icon: Icon(Icons.lock),
             contentPadding: textBoxEdgeInset,
-            labelText: "Password",
+            labelText: "PASSWORD",
             labelStyle: regLabelStyle,
           ),
           controller: passwordController,
@@ -83,7 +84,7 @@ class _RegisterPageState extends State<RegisterPage> {
           decoration: InputDecoration(
               icon: Icon(Icons.lock),
               contentPadding: textBoxEdgeInset,
-              labelText: "Confirm Password",
+              labelText: "CONFIRM PASSWORD",
               labelStyle: regLabelStyle),
           controller: repeatPasswordController,
         ),
@@ -143,7 +144,21 @@ class _RegisterPageState extends State<RegisterPage> {
 
     ;
 
-    final loadingRegister = AlertDialog(content: Text('Loading'));
+    final loadingRegister = AlertDialog(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          SpinKitThreeBounce(
+            color: redTel,
+            size: 20,
+          ),
+          SizedBox(height: 5,),
+          Text("Loading"),
+        ],
+      ),
+
+      backgroundColor: Colors.white60,
+    );
 
     Widget registerLogic() {
       if (regsiterStatus == null) {
@@ -184,7 +199,7 @@ class _RegisterPageState extends State<RegisterPage> {
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        child: Text("Register",
+        child: Text("REGISTER",
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: Colors.white,
@@ -231,10 +246,9 @@ class _RegisterPageState extends State<RegisterPage> {
             padding: const EdgeInsets.fromLTRB(40.0, 10, 40, 10),
             child: Column(
               children: <Widget>[
-                SizedBox(height: 10.0),
-                title,
-                subtitle,
                 SizedBox(height: 20.0),
+                title,
+                SizedBox(height: 10.0),
                 nameField,
                 SizedBox(height: 15.0),
                 NIKField,
@@ -244,7 +258,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 passwordField,
                 SizedBox(height: 15.0),
                 repasswordField,
-                SizedBox(height: 50.0),
+                SizedBox(height: 40.0),
                 registerButton
               ],
             ),

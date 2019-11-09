@@ -14,21 +14,17 @@ class ListTenderPage extends StatefulWidget {
 }
 
 class _ListTenderPageState extends State<ListTenderPage> {
-  UserList userList = null;
+  TenderList tenderList = null;
 
   final redTel = Color(0xffc90623);
 
   @override
   void initState() {
     super.initState();
-
-    print("Init State List Tender Page");
-
-    List<String> noFilter = [""];
-
-    UserList.connectToAPI(noFilter).then((value) {
+    List<String> noSearch = ["nosearch"];
+    TenderList.getTenders(noSearch).then((value) {
       setState(() {
-        userList = value;
+        tenderList = value;
       });
     });
   }
@@ -36,9 +32,9 @@ class _ListTenderPageState extends State<ListTenderPage> {
   @override
   Widget build(BuildContext context) {
     final sliverListItem = SliverFixedExtentList(
-      itemExtent: 135.0,
+      itemExtent: 160.0,
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-        if (userList == null) {
+        if (tenderList == null) {
           return Container(
             color: Color(0xFFf6f6f6),
             padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -49,12 +45,7 @@ class _ListTenderPageState extends State<ListTenderPage> {
                   color: Colors.white,
                   child: ListTile(
                     contentPadding: EdgeInsets.fromLTRB(15.0, 5, 5, 5),
-                    title: Text(
-                      "",
-                      style: TextStyle(backgroundColor: Colors.grey),
-                    ),
                     subtitle: Column(children: <Widget>[
-                      SizedBox(height: 15.0),
                       Row(
                         children: <Widget>[
                           Icon(
@@ -67,31 +58,21 @@ class _ListTenderPageState extends State<ListTenderPage> {
                               style: TextStyle(backgroundColor: Colors.grey))
                         ],
                       ),
-                      SizedBox(height: 7.0),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text("",
-                            style: TextStyle(backgroundColor: Colors.red)),
-                      )
                     ]),
                     trailing: Icon(
                       Icons.arrow_right,
                       color: Colors.blue,
                     ),
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return TenderDetailPage();
-                      }));
-                    },
                   ),
                 )),
           );
         } else {
-          if (index < userList.users.length) {
+          if (index < tenderList.tenders.length) {
             return Container(
-              color: Color(0xFFf6f6f6),
-              padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+              padding: EdgeInsets.fromLTRB(11, 6, 11, 6),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Color(0xFFf6f6f6)),
               child: Container(
                   color: Colors.red,
                   child: Container(
@@ -100,7 +81,7 @@ class _ListTenderPageState extends State<ListTenderPage> {
                     child: ListTile(
                       contentPadding: EdgeInsets.fromLTRB(15.0, 5, 5, 5),
                       title: Text(
-                        userList.users[index].title,
+                        tenderList.tenders[index].title,
                         style: TextStyle(fontSize: 15.0),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -111,31 +92,46 @@ class _ListTenderPageState extends State<ListTenderPage> {
                           children: <Widget>[
                             Icon(
                               Icons.pin_drop,
-                              size: 15.0,
+                              size: 20.0,
                               color: Colors.blue,
                             ),
                             SizedBox(width: 7.0),
                             Flexible(
                                 child: Text(
-                              userList.users[index].instansi,
+                              tenderList.tenders[index].instansi,
                               maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
                             )),
                           ],
                         ),
-                        SizedBox(height: 7.0),
+                        SizedBox(height: 8.0),
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text("Rp " + userList.users[index].pagu,
+                          child: Text("Rp " + tenderList.tenders[index].pagu,
                               style: TextStyle(color: Colors.black)),
+                        ),
+                        SizedBox(height: 15.0),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "status : ${tenderList.tenders[index].status}",
+                            style: TextStyle(
+                                fontSize: 10, fontStyle: FontStyle.italic),
+                          ),
                         )
                       ]),
-                      trailing: Icon(Icons.arrow_right, color: Colors.blue),
+                      trailing: Icon(
+                        Icons.arrow_right,
+                        color: Colors.blue,
+                        size: 30,
+                      ),
                       onTap: () {
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
-                          print(userList.users[index].id);
+                          print(tenderList.tenders[index].id);
                           return TenderDetailPage(
-                              url: userList.users[index].link);
+                              url: tenderList.tenders[index].link);
                         }));
                       },
                     ),
@@ -155,7 +151,7 @@ class _ListTenderPageState extends State<ListTenderPage> {
           SliverAppBar(
               floating: true,
               pinned: true,
-              elevation: 50.0,
+              elevation: 20.0,
               expandedHeight: 250.0,
               backgroundColor: redTel,
               actions: <Widget>[

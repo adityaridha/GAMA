@@ -18,7 +18,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget resultWidget = Text("No Tender Found");
 
-  UserList searchResult = null;
+  TenderList searchResult = null;
 
   @override
   Widget build(BuildContext context) {
@@ -42,17 +42,17 @@ class _SearchPageState extends State<SearchPage> {
               List<String> inputSearch = [searchController.text.toString()];
               print("Input search nya $inputSearch");
 
-              UserList.connectToAPI(inputSearch).then((value) {
+              TenderList.getTenders(inputSearch).then((value) {
                 setState(() {
                   searchResult = value;
                   if (searchResult != null) {
                     setState(() {
                       this.resultWidget = ListView.builder(
-                          itemCount: searchResult.users.length,
+                          itemCount: searchResult.tenders.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Container(
                               color: Color(0xFFf6f6f6),
-                              padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                              padding: EdgeInsets.fromLTRB(11, 6, 11, 6),
                               child: Container(
                                   color: Colors.red,
                                   child: Container(
@@ -62,7 +62,7 @@ class _SearchPageState extends State<SearchPage> {
                                       contentPadding:
                                       EdgeInsets.fromLTRB(15.0, 5, 5, 5),
                                       title: Text(
-                                        searchResult.users[index].title,
+                                        searchResult.tenders[index].title,
                                         style: TextStyle(fontSize: 15.0),
                                         maxLines: 2,
                                       ),
@@ -72,23 +72,32 @@ class _SearchPageState extends State<SearchPage> {
                                           children: <Widget>[
                                             Icon(
                                               Icons.pin_drop,
-                                              size: 15.0,
+                                              size: 20.0,
                                               color: Colors.blue,
                                             ),
                                             SizedBox(width: 7.0),
                                             Flexible(
                                                 child: Text(
-                                                  searchResult.users[index].instansi,
+                                                  searchResult.tenders[index].instansi,
                                                   maxLines: 2,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(fontSize: 12),
                                                 )),
                                           ],
                                         ),
-                                        SizedBox(height: 7.0),
+                                        SizedBox(height: 8.0),
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text("Rp " + searchResult.tenders[index].pagu,
+                                              style: TextStyle(color: Colors.black)),
+                                        ),
+                                        SizedBox(height: 15.0),
                                         Align(
                                           alignment: Alignment.centerLeft,
                                           child: Text(
-                                            "Rp " + searchResult.users[index].pagu,
-                                            style: TextStyle(color: Colors.black),
+                                            "status : ${searchResult.tenders[index].status}",
+                                            style: TextStyle(
+                                                fontSize: 10, fontStyle: FontStyle.italic),
                                           ),
                                         )
                                       ]),
@@ -100,7 +109,7 @@ class _SearchPageState extends State<SearchPage> {
                                         Navigator.push(context,
                                             MaterialPageRoute(builder: (context) {
                                               return TenderDetailPage(
-                                                url: searchResult.users[index].link,
+                                                url: searchResult.tenders[index].link,
                                               );
                                             }));
                                       },

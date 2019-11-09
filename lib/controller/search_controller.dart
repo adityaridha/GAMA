@@ -1,7 +1,7 @@
 import 'package:telkom_bidding_app/model/list_tender_model.dart';
 
 class FilterTender {
-  Future<UserList> filter(List<String> searchItem) {
+  Future<TenderList> filter(List<String> searchItem) {
     print("Yang dicari $searchItem");
 
     if (searchItem == "") {
@@ -9,7 +9,7 @@ class FilterTender {
       return null;
     }
 
-    var searchResult = UserList.connectToAPI(searchItem);
+    var searchResult = TenderList.getTenders(searchItem);
     print(searchResult);
     return searchResult;
   }
