@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splashscreen/splashscreen.dart';
 import 'package:telkom_bidding_app/model/list_lpse_model.dart';
+import 'package:telkom_bidding_app/pusher_service.dart';
 import 'package:telkom_bidding_app/view/list_tender_page.dart';
 import 'package:telkom_bidding_app/view/login_page.dart';
 
@@ -22,7 +23,6 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
   Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
     final value = prefs.getBool("login") ?? false;
-    print('Dibaca disini: $value');
     return value;
   }
 
@@ -40,18 +40,20 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
     }
   }
 
+  PusherService pusherService = PusherService();
+
   @override
   void initState() {
+
+//    pusherService = PusherService();
+//    pusherService.firePusher('my-channel', 'my-event');
+
     super.initState();
     _messaging.getToken().then((token) {
       print(token);
     });
 
     _messaging.subscribeToTopic("tender");
-
-    LPSEList.getLPSE().then((value){
-      print("ini LPSE $value");
-    });
 
   }
 

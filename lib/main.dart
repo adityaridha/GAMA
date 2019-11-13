@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:telkom_bidding_app/view/list_tender_page.dart';
 import 'package:telkom_bidding_app/view/login_page.dart';
+import 'package:telkom_bidding_app/view/register_page.dart';
 import 'package:telkom_bidding_app/view/search_page.dart';
 import 'package:telkom_bidding_app/view/settings_page.dart';
 import 'package:telkom_bidding_app/view/splashscreen.dart';

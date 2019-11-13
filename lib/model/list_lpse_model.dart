@@ -17,7 +17,7 @@ class LPSEList {
   }
 
   static Future<LPSEList> getLPSE() async {
-    String apiURL = "http://5db5998c4e41670014ef2aeb.mockapi.io/api/lpse";
+    String apiURL = "http://54.251.134.177/api/v1//tender/witel";
     var header = {'Content-Type': 'application/json'};
     var apiResult = await http.get(apiURL, headers: header);
     var jsonObject = json.decode(apiResult.body);
@@ -26,18 +26,32 @@ class LPSEList {
 
     return LPSEList.fromJson(jsonObject);
   }
+
+  static Future<List<dynamic>> getListLPSE() async {
+    String apiURL = "http://54.251.134.177/api/v1//tender/witel";
+    var header = {'Content-Type': 'application/json'};
+    var apiResult = await http.get(apiURL, headers: header);
+    var jsonObject = json.decode(apiResult.body);
+
+    print(jsonObject);
+
+    return jsonObject;
+  }
+
+
+
 }
 
 class LPSE {
-  String id;
-  String instansi;
+  String witel;
+  List<dynamic> lpse;
 
 
-  LPSE({this.id, this.instansi});
+  LPSE({this.witel, this.lpse});
 
   factory LPSE.fromJson(Map<String, dynamic> object) {
     return LPSE(
-        id: object['id'],
-        instansi: object['instansi']);
+        witel: object['Witel'],
+        lpse: object['Lpse']);
   }
 }

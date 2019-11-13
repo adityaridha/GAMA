@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:http/http.dart';
 import 'package:telkom_bidding_app/controller/api_call.dart';
 import 'package:telkom_bidding_app/view/list_tender_page.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key key, this.title}) : super(key: key);
@@ -22,6 +23,13 @@ class _RegisterPageState extends State<RegisterPage> {
   var repeatPasswordController = TextEditingController();
   var nameController = TextEditingController();
 
+  final nameFormKey = GlobalKey<FormState>();
+  final NIKFormKey = GlobalKey<FormState>();
+  final emailFormKey = GlobalKey<FormState>();
+  final confirmPasswordFormKey = GlobalKey<FormState>();
+  final allKey = GlobalKey<FormState>();
+  final passwordFormKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -33,10 +41,11 @@ class _RegisterPageState extends State<RegisterPage> {
     final redTel = Color(0xffc90623);
 
     var regsiterStatus;
+    Response registerReturn;
 
-    final nameField = Column(
-      children: <Widget>[
-        TextFormField(
+    final nameField = Form(
+        key: nameFormKey,
+        child: TextFormField(
           decoration: InputDecoration(
             icon: Icon(Icons.person),
             contentPadding: textBoxEdgeInset,
@@ -44,13 +53,23 @@ class _RegisterPageState extends State<RegisterPage> {
             labelStyle: regLabelStyle,
           ),
           controller: nameController,
-        ),
-      ],
-    );
+          onChanged: (value) {
+            nameFormKey.currentState.validate();
+          },
+          validator: (value) {
+            if (value.isEmpty) {
+              return "Nama tidak boleh kosong";
+            } else
+              return null;
+          },
+        ));
 
-    final emailField = Column(
-      children: <Widget>[
-        TextFormField(
+    final emailField = Form(
+        key: emailFormKey,
+        child: TextFormField(
+          onChanged: (value) {
+            emailFormKey.currentState.validate();
+          },
           decoration: InputDecoration(
             icon: Icon(Icons.email),
             contentPadding: textBoxEdgeInset,
@@ -58,13 +77,22 @@ class _RegisterPageState extends State<RegisterPage> {
             labelStyle: regLabelStyle,
           ),
           controller: emailController,
-        ),
-      ],
-    );
+          validator: (value) {
+            if (value.isNotEmpty) {
+              if (!value.contains("@")) {
+                return "Format email tidak valid";
+              } else
+                return null;
+            } else if (value.isEmpty) {
+              return "Email tidak boleh kosong";
+            } else
+              return null;
+          },
+        ));
 
-    final passwordField = Column(
-      children: <Widget>[
-        TextField(
+    final passwordField = Form(
+        key: passwordFormKey,
+        child: TextFormField(
           obscureText: true,
           decoration: InputDecoration(
             icon: Icon(Icons.lock),
@@ -73,38 +101,60 @@ class _RegisterPageState extends State<RegisterPage> {
             labelStyle: regLabelStyle,
           ),
           controller: passwordController,
-        ),
-      ],
-    );
+          onChanged: (value){
+            passwordFormKey.currentState.validate();
+          },
+          validator: (value) {
+            if(value.isEmpty){
+              return "password tidak boleh kosong";
+            } else
+              return null;
+          },
+        ));
 
-    final repasswordField = Column(
-      children: <Widget>[
-        TextField(
+    final repasswordField = Form(
+        key: confirmPasswordFormKey,
+        child: TextFormField(
           obscureText: true,
+          onChanged: (value) {
+            confirmPasswordFormKey.currentState.validate();
+          },
           decoration: InputDecoration(
               icon: Icon(Icons.lock),
               contentPadding: textBoxEdgeInset,
               labelText: "CONFIRM PASSWORD",
-              labelStyle: regLabelStyle),
+              labelStyle: regLabelStyle,
+              errorMaxLines: 2),
           controller: repeatPasswordController,
-        ),
-      ],
-    );
+          validator: (value) {
+            if (value.isEmpty) {
+              return "confirm password tidak boleh kosong";
+            } else if (value != passwordController.text) {
+              return "confirm password berbeda dengan password";
+            } else
+              return null;
+          },
+        ));
 
-    final NIKField = Column(
-      children: <Widget>[
-        TextField(
+    final NIKField = Form(
+        key: NIKFormKey,
+        child: TextFormField(
           decoration: InputDecoration(
               icon: Icon(Icons.credit_card),
               contentPadding: textBoxEdgeInset,
               labelText: "NIK",
               labelStyle: regLabelStyle),
           controller: NIKController,
-        ),
-      ],
-    );
-
-    final alertRegister = AlertDialog(content: Text('Registration Gagal'));
+          onChanged: (value){
+            NIKFormKey.currentState.validate();
+          },
+          validator: (value) {
+            if (value.isEmpty) {
+              return "NIK tidak boleh kosong";
+            } else
+              return null;
+          },
+        ));
 
     final newAlertRegister = AlertDialog(
       title: Center(child: Text("Oops")),
@@ -118,9 +168,14 @@ class _RegisterPageState extends State<RegisterPage> {
           SizedBox(height: 10.0),
           Center(
             child: FlatButton(
-              shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(15)),
               color: redTel,
-              child: Center(child: Text("OK", style: TextStyle(color: Colors.white),)),
+              child: Center(
+                  child: Text(
+                "OK",
+                style: TextStyle(color: Colors.white),
+              )),
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -129,7 +184,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ],
       ),
       shape:
-      RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
+          RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
     );
 
     void failedRegister(BuildContext context) {
@@ -142,8 +197,6 @@ class _RegisterPageState extends State<RegisterPage> {
           });
     }
 
-    ;
-
     final loadingRegister = AlertDialog(
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -152,11 +205,12 @@ class _RegisterPageState extends State<RegisterPage> {
             color: redTel,
             size: 20,
           ),
-          SizedBox(height: 5,),
+          SizedBox(
+            height: 5,
+          ),
           Text("Loading"),
         ],
       ),
-
       backgroundColor: Colors.white60,
     );
 
@@ -174,7 +228,9 @@ class _RegisterPageState extends State<RegisterPage> {
               emailController.text, passwordController.text)
           .then((value) {
         setState(() {
+          print("ini hasil register ${value.body} ${value.statusCode}");
           regsiterStatus = value.statusCode;
+          registerReturn = value;
         });
 
         if (regsiterStatus == 200) {
@@ -184,13 +240,10 @@ class _RegisterPageState extends State<RegisterPage> {
             return ListTenderPage();
           }));
         } else {
-          print("already got status ${regsiterStatus}");
           failedRegister(context);
         }
       });
     }
-
-    ;
 
     final registerButton = Material(
       elevation: 5.0,
@@ -206,7 +259,18 @@ class _RegisterPageState extends State<RegisterPage> {
                 fontWeight: FontWeight.bold,
                 fontSize: 20.0)),
         onPressed: () {
-          registerLogic();
+          nameFormKey.currentState.validate();
+          NIKFormKey.currentState.validate();
+          emailFormKey.currentState.validate();
+          confirmPasswordFormKey.currentState.validate();
+          passwordFormKey.currentState.validate();
+          if (nameFormKey.currentState.validate() &&
+              confirmPasswordFormKey.currentState.validate() &&
+              NIKFormKey.currentState.validate() &&
+              passwordFormKey.currentState.validate() &&
+              emailFormKey.currentState.validate()) {
+            registerLogic();
+          }
         },
       ),
     );
@@ -240,27 +304,30 @@ class _RegisterPageState extends State<RegisterPage> {
         title: Text("Register"),
         backgroundColor: redTel,
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(40.0, 10, 40, 10),
-            child: Column(
-              children: <Widget>[
-                SizedBox(height: 20.0),
-                title,
-                SizedBox(height: 10.0),
-                nameField,
-                SizedBox(height: 15.0),
-                NIKField,
-                SizedBox(height: 15.0),
-                emailField,
-                SizedBox(height: 15.0),
-                passwordField,
-                SizedBox(height: 15.0),
-                repasswordField,
-                SizedBox(height: 40.0),
-                registerButton
-              ],
+      body: Form(
+        key: allKey,
+        child: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(40.0, 10, 40, 10),
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 20.0),
+                  title,
+                  SizedBox(height: 10.0),
+                  nameField,
+                  SizedBox(height: 15.0),
+                  NIKField,
+                  SizedBox(height: 15.0),
+                  emailField,
+                  SizedBox(height: 15.0),
+                  passwordField,
+                  SizedBox(height: 15.0),
+                  repasswordField,
+                  SizedBox(height: 40.0),
+                  registerButton
+                ],
+              ),
             ),
           ),
         ),

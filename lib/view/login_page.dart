@@ -5,6 +5,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telkom_bidding_app/controller/api_call.dart';
 import 'package:telkom_bidding_app/model/list_tender_model.dart';
+import 'package:telkom_bidding_app/utility/local_data.dart';
 import 'package:telkom_bidding_app/view/list_tender_page.dart';
 import 'package:telkom_bidding_app/view/register_page.dart';
 
@@ -18,12 +19,23 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _NIKformKey = GlobalKey<FormState>();
-  final _passwodFormKey = GlobalKey<FormState>();
+  final NIKFormKey = GlobalKey<FormState>();
+  final passwodFormKey = GlobalKey<FormState>();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
 
   final redTel = Color(0xffc90623);
+
+  List<String> whitelistWord = ["jaringan", "server"];
+
+  LocalData data = new LocalData();
+
+  @override
+  void initState() {
+    super.initState();
+
+    data.saveWhiteListWord(whitelistWord);
+  }
 
   TenderList user = null;
 
@@ -43,17 +55,11 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     var status;
 
-    final emailField = Form(
-        key: _NIKformKey,
+    final nikField = Form(
+        key: NIKFormKey,
         child: TextFormField(
-          onEditingComplete: () {
-            _NIKformKey.currentState.validate();
-          },
-          onTap: () {
-            _NIKformKey.currentState.validate();
-          },
           onChanged: (context) {
-            _NIKformKey.currentState.validate();
+            NIKFormKey.currentState.validate();
           },
           textAlign: TextAlign.center,
           decoration: InputDecoration(
@@ -71,17 +77,17 @@ class _LoginPageState extends State<LoginPage> {
           controller: emailController,
           validator: (value) {
             if (value.isEmpty) {
-              return null;
+              return "NIK tidak boleh kosong";
             }
             return null;
           },
         ));
 
     final passwordField = Form(
-        key: _passwodFormKey,
+        key: passwodFormKey,
         child: TextFormField(
           onChanged: (context) {
-            _passwodFormKey.currentState.validate();
+            passwodFormKey.currentState.validate();
           },
           obscureText: true,
           textAlign: TextAlign.center,
@@ -101,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
           controller: passwordController,
           validator: (value) {
             if (value.isEmpty) {
-              return null;
+              return "Password tidak boleh kosong";
             }
             return null;
           },
@@ -166,23 +172,31 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
       shape:
-          RoundedRectangleBorder(borderRadius: new BorderRadius.circular(15)),
+          RoundedRectangleBorder(borderRadius: new BorderRadius.circular(10)),
     );
 
     final loadingLogin = AlertDialog(
       content: Column(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
+          SizedBox(
+            height: 8,
+          ),
           SpinKitThreeBounce(
             color: redTel,
             size: 20,
           ),
-          SizedBox(height: 5,),
-          Text("Loading"),
+          SizedBox(
+            height: 8,
+          ),
+          Text("Tunggu sebentar yaa"),
+          SizedBox(
+            height: 8,
+          ),
         ],
       ),
-
-      backgroundColor: Colors.white60,
+      shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(10)),
     );
 
     void failedLogin(BuildContext context) {
@@ -196,10 +210,7 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     Widget loginLogic() {
-      print("Initial state login : ${status}");
-
       if (status == null) {
-        print("Inside loading : ${status}");
         showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -208,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
       }
       ;
 
-      if (_passwodFormKey.currentState.validate()) {
+      if (passwodFormKey.currentState.validate()) {
         APICall.login(emailController.text, passwordController.text)
             .then((value) {
           setState(() {
@@ -256,7 +267,13 @@ class _LoginPageState extends State<LoginPage> {
                 fontWeight: FontWeight.bold,
                 fontSize: 17.0)),
         onPressed: () {
-          loginLogic();
+          NIKFormKey.currentState.validate();
+          passwodFormKey.currentState.validate();
+
+          if (NIKFormKey.currentState.validate() &&
+              passwodFormKey.currentState.validate()) {
+            loginLogic();
+          }
         },
       ),
     );
@@ -278,14 +295,14 @@ class _LoginPageState extends State<LoginPage> {
         children: <TextSpan>[
           TextSpan(
               text: 'GA',
-              style: TextStyle(fontFamily: 'Cocogoose', fontSize: 60)),
+              style: TextStyle(fontFamily: 'Cocogoose', fontSize: 70)),
           TextSpan(
               text: 'M',
               style: TextStyle(
-                  color: redTel, fontFamily: 'Cocogoose', fontSize: 60)),
+                  color: redTel, fontFamily: 'Cocogoose', fontSize: 70)),
           TextSpan(
               text: 'A',
-              style: TextStyle(fontFamily: 'Cocogoose', fontSize: 60)),
+              style: TextStyle(fontFamily: 'Cocogoose', fontSize: 70)),
         ],
       ),
     );
@@ -309,8 +326,8 @@ class _LoginPageState extends State<LoginPage> {
                 title,
                 SizedBox(height: 5.0),
                 subtitle,
-                SizedBox(height: 50.0),
-                emailField,
+                SizedBox(height: 90.0),
+                nikField,
                 SizedBox(height: 15.0),
                 passwordField,
                 SizedBox(height: 30.0),

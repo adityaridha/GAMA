@@ -14,7 +14,7 @@ class ListTenderPage extends StatefulWidget {
 }
 
 class _ListTenderPageState extends State<ListTenderPage> {
-  TenderList tenderList = null;
+  TenderList tenderList;
 
   final redTel = Color(0xffc90623);
 
@@ -35,107 +35,117 @@ class _ListTenderPageState extends State<ListTenderPage> {
       itemExtent: 160.0,
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
         if (tenderList == null) {
-          return Container(
-            color: Color(0xFFf6f6f6),
-            padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-            child: Container(
-                color: Colors.red,
-                child: Container(
-                  margin: EdgeInsets.fromLTRB(4.0, 0.0, 0, 0),
-                  color: Colors.white,
-                  child: ListTile(
-                    contentPadding: EdgeInsets.fromLTRB(15.0, 5, 5, 5),
-                    subtitle: Column(children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.pin_drop,
-                            size: 15.0,
-                            color: Colors.blue,
-                          ),
-                          SizedBox(width: 7.0),
-                          Text("",
-                              style: TextStyle(backgroundColor: Colors.grey))
-                        ],
-                      ),
-                    ]),
-                    trailing: Icon(
-                      Icons.arrow_right,
-                      color: Colors.blue,
-                    ),
-                  ),
-                )),
-          );
+          return Text("No Data");
         } else {
           if (index < tenderList.tenders.length) {
             return Container(
-              padding: EdgeInsets.fromLTRB(11, 6, 11, 6),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Color(0xFFf6f6f6)),
-              child: Container(
-                  color: Colors.red,
-                  child: Container(
-                    margin: EdgeInsets.fromLTRB(4.0, 0.0, 0, 0),
-                    color: Colors.white,
-                    child: ListTile(
-                      contentPadding: EdgeInsets.fromLTRB(15.0, 5, 5, 5),
-                      title: Text(
-                        tenderList.tenders[index].title,
-                        style: TextStyle(fontSize: 15.0),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Column(children: <Widget>[
-                        SizedBox(height: 15.0),
-                        Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.pin_drop,
-                              size: 20.0,
-                              color: Colors.blue,
-                            ),
-                            SizedBox(width: 7.0),
-                            Flexible(
-                                child: Text(
-                              tenderList.tenders[index].instansi,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 12),
-                            )),
-                          ],
+              padding: EdgeInsets.fromLTRB(7, 3, 7, 3),
+              child: Card(
+                elevation: 7,
+                child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(0), color: redTel),
+                    child: Container(
+                      margin: EdgeInsets.only(left: 4.0),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(0),
+                          color: Colors.white),
+                      child: ListTile(
+                        contentPadding: EdgeInsets.fromLTRB(15.0, 5, 15, 5),
+                        title: Text(
+                          tenderList.tenders[index].title
+                              .replaceAll(
+                                  "<span class='label label-warning'>", "")
+                              .replaceAll("</span>".toString(), ""),
+                          style: TextStyle(fontSize: 15.0),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        SizedBox(height: 8.0),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text("Rp " + tenderList.tenders[index].pagu,
-                              style: TextStyle(color: Colors.black)),
-                        ),
-                        SizedBox(height: 15.0),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "status : ${tenderList.tenders[index].status}",
-                            style: TextStyle(
-                                fontSize: 10, fontStyle: FontStyle.italic),
+                        subtitle: Column(children: <Widget>[
+                          SizedBox(height: 12.0),
+                          Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.pin_drop,
+                                size: 20.0,
+                                color: Colors.blue,
+                              ),
+                              SizedBox(width: 7.0),
+                              Flexible(
+                                  child: Text(
+                                tenderList.tenders[index].instansi,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 12),
+                              )),
+                            ],
                           ),
-                        )
-                      ]),
-                      trailing: Icon(
-                        Icons.arrow_right,
-                        color: Colors.blue,
-                        size: 30,
+                          SizedBox(height: 8.0),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text("Rp " + tenderList.tenders[index].pagu,
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color: Color.fromRGBO(12, 120, 34, 5),
+                                    fontWeight: FontWeight.w500)),
+                          ),
+                          SizedBox(height: 12.0),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Row(
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.timeline,
+                                    size: 15,
+                                    color: Colors.blue,
+                                  ),
+                                  SizedBox(width: 5),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "${tenderList.tenders[index].status.replaceAll("[...]", "").replaceAll("Surat", "")}",
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: 10,
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.access_time,
+                                    size: 15,
+                                    color: Colors.blue,
+                                  ),
+                                  SizedBox(width: 5),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      "${tenderList.tenders[index].end}",
+                                      style: TextStyle(
+                                          fontSize: 10,
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                          SizedBox(height: 8.0),
+                        ]),
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return TenderDetailPage(
+                                url: tenderList.tenders[index].link);
+                          }));
+                        },
                       ),
-                      onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          print(tenderList.tenders[index].id);
-                          return TenderDetailPage(
-                              url: tenderList.tenders[index].link);
-                        }));
-                      },
-                    ),
-                  )),
+                    )),
+              ),
             );
           } else {
             return null;
@@ -144,8 +154,20 @@ class _ListTenderPageState extends State<ListTenderPage> {
       }),
     );
 
+    Widget listTender() {
+      if (tenderList == null) {
+        return SliverFillRemaining(
+            child: Center(
+                child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[Text("Tidak ada tender ditemukan")])));
+      } else {
+        return sliverListItem;
+      }
+    }
+
     final sliverList = Container(
-      color: Color(0xFFf6f6f6),
       child: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
@@ -162,11 +184,9 @@ class _ListTenderPageState extends State<ListTenderPage> {
                       return SettingsPage();
                     }));
                   },
-                  child: Center(
-                    child: Container(
-                        child: Icon(Icons.settings, color: Colors.white),
-                        padding: EdgeInsets.only(right: 20)),
-                  ),
+                  child: Container(
+                      child: Icon(Icons.settings, color: Colors.white),
+                      padding: EdgeInsets.only(right: 17)),
                 ),
               ],
               flexibleSpace: FlexibleSpaceBar(
@@ -176,7 +196,7 @@ class _ListTenderPageState extends State<ListTenderPage> {
                       colorBlendMode: BlendMode.darken),
                   title: Text('LIST TENDER'),
                   centerTitle: true)),
-          sliverListItem
+          listTender(),
         ],
       ),
     );

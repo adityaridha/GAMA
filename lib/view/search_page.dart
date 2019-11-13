@@ -18,7 +18,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget resultWidget = Text("No Tender Found");
 
-  TenderList searchResult = null;
+  TenderList tenderList = null;
 
   @override
   Widget build(BuildContext context) {
@@ -44,77 +44,120 @@ class _SearchPageState extends State<SearchPage> {
 
               TenderList.getTenders(inputSearch).then((value) {
                 setState(() {
-                  searchResult = value;
-                  if (searchResult != null) {
+                  tenderList = value;
+                  if (tenderList != null) {
                     setState(() {
                       this.resultWidget = ListView.builder(
-                          itemCount: searchResult.tenders.length,
+                          itemCount: tenderList.tenders.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Container(
-                              color: Color(0xFFf6f6f6),
-                              padding: EdgeInsets.fromLTRB(11, 6, 11, 6),
-                              child: Container(
-                                  color: Colors.red,
-                                  child: Container(
-                                    margin: EdgeInsets.fromLTRB(4.0, 0.0, 0, 0),
-                                    color: Colors.white,
-                                    child: ListTile(
-                                      contentPadding:
-                                      EdgeInsets.fromLTRB(15.0, 5, 5, 5),
-                                      title: Text(
-                                        searchResult.tenders[index].title,
-                                        style: TextStyle(fontSize: 15.0),
-                                        maxLines: 2,
-                                      ),
-                                      subtitle: Column(children: <Widget>[
-                                        SizedBox(height: 15.0),
-                                        Row(
-                                          children: <Widget>[
-                                            Icon(
-                                              Icons.pin_drop,
-                                              size: 20.0,
-                                              color: Colors.blue,
-                                            ),
-                                            SizedBox(width: 7.0),
-                                            Flexible(
-                                                child: Text(
-                                                  searchResult.tenders[index].instansi,
-                                                  maxLines: 2,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: TextStyle(fontSize: 12),
-                                                )),
-                                          ],
+                              padding: EdgeInsets.fromLTRB(7, 3, 7, 3),
+                              child: Card(
+                                elevation: 7,
+                                child: Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(0), color: redTel),
+                                    child: Container(
+                                      margin: EdgeInsets.only(left: 4.0),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(0),
+                                          color: Colors.white),
+                                      child: ListTile(
+                                        contentPadding: EdgeInsets.fromLTRB(15.0, 5, 15, 5),
+                                        title: Text(
+                                          tenderList.tenders[index].title
+                                              .replaceAll(
+                                              "<span class='label label-warning'>", "")
+                                              .replaceAll("</span>".toString(), ""),
+                                          style: TextStyle(fontSize: 15.0),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        SizedBox(height: 8.0),
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text("Rp " + searchResult.tenders[index].pagu,
-                                              style: TextStyle(color: Colors.black)),
-                                        ),
-                                        SizedBox(height: 15.0),
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            "status : ${searchResult.tenders[index].status}",
-                                            style: TextStyle(
-                                                fontSize: 10, fontStyle: FontStyle.italic),
+                                        subtitle: Column(children: <Widget>[
+                                          SizedBox(height: 12.0),
+                                          Row(
+                                            children: <Widget>[
+                                              Icon(
+                                                Icons.pin_drop,
+                                                size: 20.0,
+                                                color: Colors.blue,
+                                              ),
+                                              SizedBox(width: 7.0),
+                                              Flexible(
+                                                  child: Text(
+                                                    tenderList.tenders[index].instansi,
+                                                    maxLines: 2,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: TextStyle(fontSize: 12),
+                                                  )),
+                                            ],
                                           ),
-                                        )
-                                      ]),
-                                      trailing: Icon(
-                                        Icons.arrow_right,
-                                        color: Colors.blue,
+                                          SizedBox(height: 8.0),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text("Rp " + tenderList.tenders[index].pagu,
+                                                style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: Color.fromRGBO(12, 120, 34, 5),
+                                                    fontWeight: FontWeight.w500)),
+                                          ),
+                                          SizedBox(height: 12.0),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Row(
+                                                children: <Widget>[
+                                                  Icon(
+                                                    Icons.timeline,
+                                                    size: 15,
+                                                    color: Colors.blue,
+                                                  ),
+                                                  SizedBox(width: 5),
+                                                  Align(
+                                                    alignment: Alignment.centerLeft,
+                                                    child: Text(
+                                                      "${tenderList.tenders[index].status.replaceAll("[...]", "").replaceAll("Surat", "")}",
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                          fontSize: 10,
+                                                          fontStyle: FontStyle.italic),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: <Widget>[
+                                                  Icon(
+                                                    Icons.access_time,
+                                                    size: 15,
+                                                    color: Colors.blue,
+                                                  ),
+                                                  SizedBox(width: 5),
+                                                  Align(
+                                                    alignment: Alignment.centerRight,
+                                                    child: Text(
+                                                      "${tenderList.tenders[index].end}",
+                                                      style: TextStyle(
+                                                          fontSize: 10,
+                                                          fontStyle: FontStyle.italic),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                          SizedBox(height: 8.0),
+                                        ]),
+                                        onTap: () {
+                                          Navigator.push(context,
+                                              MaterialPageRoute(builder: (context) {
+                                                return TenderDetailPage(
+                                                    url: tenderList.tenders[index].link);
+                                              }));
+                                        },
                                       ),
-                                      onTap: () {
-                                        Navigator.push(context,
-                                            MaterialPageRoute(builder: (context) {
-                                              return TenderDetailPage(
-                                                url: searchResult.tenders[index].link,
-                                              );
-                                            }));
-                                      },
-                                    ),
-                                  )),
+                                    )),
+                              ),
                             );
                           });
                     });
